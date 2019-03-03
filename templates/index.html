@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <header class="masthead bg-primary text-white text-center">
+        <div class="container">
+            <h1 class="text-uppercase mb-0">Купить Robux</h1>
+            <hr class="star-light">
+            <form action="{% url 'buy_robux' %}" method="post" class="buy-form">{% csrf_token %}
+                <label>Купить прямо сейчас!</label>
+                <input onchange="document.getElementById('to-pay').innerHTML = this.value*{{ percent }} + ' руб';" name="value" class="form-control" placeholder="Сумма" type="number" required>
+                <p>Сумма к оплате:</p><p id="to-pay"></p>
+                <div style="font-size: 14px">Текущая ставка: 1 robux = {{ percent }} руб</div>
+                <label>Ваш ник в Roblox</label>
+                <input name="name" class="form-control" placeholder="Введите ник" type="text" required>
+                <hr>
+                <button type="submit" class="btn btn-outline-danger btn-xl">Купить!</button>
+            </form>
+            <hr class="star-light">
+            <h2 class="font-weight-light mb-0">Магазин Roblox Mafia - Покупать Robux дёшево и просто!</h2>
+        </div>
+    </header>
+{% endblock %}

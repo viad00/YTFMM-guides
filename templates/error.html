@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <header class="masthead bg-primary text-white text-center">
+        <div class="container">
+            <h1 class="text-uppercase mb-0">Ошибка!</h1>
+            <hr class="star-light">
+            <h2 class="font-weight-light mb-0">{{ text }} <a href="{{ help_url }}">{{ help_url }}</a> </h2>
+        </div>
+    </header>
+{% endblock %}
