@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django.conf import settings as s
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from .models import Setting, Order, Log
 from .forms import OrderForm
 import requests
@@ -84,6 +84,7 @@ def success_payment(request):
                                               'text': 'Проверьте правильность адреса и повторите попытку'}, status=404)
 
 
+@csrf_exempt
 def yandex_callback(request):
     try:
         notification_type = request.POST['notification_type']
