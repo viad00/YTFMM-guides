@@ -87,15 +87,15 @@ def success_payment(request):
 @csrf_exempt
 def yandex_callback(request):
     try:
-        notification_type = request.POST['notification_type'][0]
-        operation_id = request.POST['operation_id'][0]
-        amount = request.POST['amount'][0]
-        currency = request.POST['currency'][0]
-        datetime = request.POST['datetime'][0]
-        sender = request.POST['sender'][0]
-        codepro = request.POST['codepro'][0]
+        notification_type = request.POST['notification_type']
+        operation_id = request.POST['operation_id']
+        amount = request.POST['amount']
+        currency = request.POST['currency']
+        datetime = request.POST['datetime']
+        sender = request.POST['sender']
+        codepro = request.POST['codepro']
         notification_secret = get_setting('yandex_secret')
-        label = request.POST['label'][0]
+        label = request.POST['label']
     except Exception:
         Log(message='Bad parse: {}'.format(request.POST)).save()
         return HttpResponseBadRequest()
