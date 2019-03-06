@@ -19,7 +19,7 @@ admin.site.register(Order, OrderAdmin)
 
 
 class LogAdmin(admin.ModelAdmin):
-    list_display = ('message')
+    list_display = ('message',)
 
 
 admin.site.register(Log, LogAdmin)
