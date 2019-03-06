@@ -115,7 +115,9 @@ def yandex_callback(request):
             return HttpResponse()
         else:
             return HttpResponseForbidden()
-    except Exception:
+    except Exception as e:
+        with open('/home/roblox/out.txt', 'wa+') as f:
+            f.write('Error '+str(e)+'\n')
         return HttpResponseBadRequest()
 
 
