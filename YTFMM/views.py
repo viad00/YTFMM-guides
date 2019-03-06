@@ -118,6 +118,8 @@ def yandex_callback(request):
                 else:
                     # Failed to verify, save log
                     Log(message='Failed to send funds, order_id: {}'.format(s.id))
+            else:
+                Log(message='Value mismatch got: {} need: {}'.format(s.value_to_pay, float(amount)))
             s.operation_id = operation_id
             s.save()
             return HttpResponse()
