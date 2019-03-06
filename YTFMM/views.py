@@ -96,6 +96,10 @@ def yandex_callback(request):
         codepro = request.POST['codepro'][0]
         notification_secret = get_setting('yandex_secret')
         label = request.POST['label'][0]
+    except Exception:
+        Log(message='Bad parse: {}'.format(request.POST)).save()
+        return HttpResponseBadRequest()
+    try:
         # notification_type&operation_id&amount&currency&datetime&sender&codepro&notification_secret&label
         m = hashlib.sha1('{}&{}&{}&{}&{}&{}&{}&{}&{}'.format(notification_type, operation_id, amount, currency, datetime,
                                                              sender, codepro, notification_secret, label))
