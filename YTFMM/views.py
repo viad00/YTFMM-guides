@@ -104,7 +104,7 @@ def yandex_callback(request):
     try:
         # notification_type&operation_id&amount&currency&datetime&sender&codepro&notification_secret&label
         m = hashlib.sha1('{}&{}&{}&{}&{}&{}&{}&{}&{}'.format(notification_type, operation_id, amount, currency, datetime,
-                                                             sender, codepro, notification_secret, label))
+                                                             sender, codepro, notification_secret, label).encode('UTF-8'))
         if m.hexdigest() == request.POST['sha1_hash']:
             or_id = int(label[2:])
             s = Order.objects.get(id=or_id)
