@@ -86,6 +86,8 @@ def success_payment(request):
 
 @csrf_exempt
 def yandex_callback(request):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
     try:
         notification_type = request.POST['notification_type']
         operation_id = request.POST['operation_id']
@@ -119,8 +121,8 @@ def yandex_callback(request):
         else:
             Log(message=('Hash mis: '+m.hexdigest() + ' ' + request.POST['sha1_hash'])).save()
             return HttpResponseForbidden()
-    except Exception:
-        Log(message='Bad try: {}'.format(request.POST)).save()
+    except Exception as e:
+        Log(message='Bad try: {}'.format(str(e))).save()
         return HttpResponseBadRequest()
 
 
