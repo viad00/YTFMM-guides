@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.conf import settings as s
 from django.views.decorators.csrf import csrf_protect
 from .models import Setting
+from .forms import OrderForm
 import requests
 import json
 
@@ -36,7 +37,7 @@ def buy_robux(request):
                                               'text': 'Имя указанное вами не найденно в группе. Для перевода robux \
                                                        вступите в нашу группу.',
                                               'help_url': s.JOIN_URL})
-    return render(request, 'buy_robux.html', {'title': 'Выбор метода оплаты'})
+    return render(request, 'buy_robux.html', {'title': 'Выбор метода оплаты', 'userid': name_id, 'value': value, 'form': OrderForm})
 
 
 def send_to(request):

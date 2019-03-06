@@ -4,6 +4,20 @@
         <div class="container">
             <h1 class="text-uppercase mb-0">Выберете тип оплаты</h1>
             <hr class="star-light">
+            <form>
+                {% csrf_token %}
+                <input name="{{ form.name_id.html_name }}" required=True hidden=True value="{{ userid }}">
+                <input name="{{ form.sum_to_get.html_name }}" required=True hidden=True value="{{ value }}">
+                {% for radio in form.pay_type %}
+                    {{ radio }}<br>
+                {% endfor %}
+                <button class="btn btn-dark" type="submit">Выбрать</button>
+            </form>
+            <br>
+            <div style="font-size: 14px">
+                Информация по комиссиям:<br>
+                Яндекс Деньги: Комиссия 0.5% при оплате с кошелька и ??% при оплате с банковской карты.<br>
+            </div>
         </div>
     </header>
 {% endblock %}
