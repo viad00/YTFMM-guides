@@ -117,9 +117,9 @@ def yandex_callback(request):
                     s.paid = True
                 else:
                     # Failed to verify, save log
-                    Log(message='Failed to send funds, order_id: {}'.format(s.id))
+                    Log(message='Failed to send funds, order_id: {}'.format(s.id)).save()
             else:
-                Log(message='Value mismatch got: {} need: {}'.format(s.value_to_pay, float(amount)))
+                Log(message='Value mismatch got: {} need: {}'.format(s.value_to_pay, float(amount))).save()
             s.operation_id = operation_id
             s.save()
             return HttpResponse()
