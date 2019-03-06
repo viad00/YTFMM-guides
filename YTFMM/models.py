@@ -18,3 +18,7 @@ class Order(models.Model):
     paid = models.BooleanField(default=False)
     been_success = models.BooleanField(default=False)
     operation_id = models.CharField(max_length=255)
+
+
+class Log(models.Model):
+    message = models.CharField(max_length=255)

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django.conf import settings as s
 from django.views.decorators.csrf import csrf_protect
-from .models import Setting, Order
+from .models import Setting, Order, Log
 from .forms import OrderForm
 import requests
 import hashlib
@@ -98,8 +98,6 @@ def yandex_callback(request):
         # notification_type&operation_id&amount&currency&datetime&sender&codepro&notification_secret&label
         m = hashlib.sha1('{}&{}&{}&{}&{}&{}&{}&{}&{}'.format(notification_type, operation_id, amount, currency, datetime,
                                                              sender, codepro, notification_secret, label))
-        with open('/home/roblox/out.txt', 'wa+') as f:
-            print(m.hexdigest(), ' ', request.POST['sha1_hash'], file=f)
         if m.hexdigest() == request.POST['sha1_hash']:
             or_id = int(label[2:])
             s = Order.objects.get(id=or_id)
@@ -108,16 +106,16 @@ def yandex_callback(request):
                 if result:
                     s.paid = True
                 else:
-                    with open('/home/roblox/out.txt', 'wa+') as f:
-                        print('Failed to transfer ', s.id, file=f)
+                    # Failed to verify, save log
+                    Log(message='Failed to send funds, order_id: {}'.format(s.id))
             s.operation_id = operation_id
             s.save()
             return HttpResponse()
         else:
+            Log(message=('Hash mis: '+m.hexdigest() + ' ' + request.POST['sha1_hash'])).save()
             return HttpResponseForbidden()
-    except Exception as e:
-        with open('/home/roblox/out.txt', 'wa+') as f:
-            f.write('Error '+str(e)+'\n')
+    except Exception:
+        Log(message='Bad try: {}'.format(request.POST)).save()
         return HttpResponseBadRequest()
 
 

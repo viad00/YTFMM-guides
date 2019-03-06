@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Order, Setting
+from .models import Order, Setting, Log
 
 # Register your models here.
 
@@ -16,3 +16,10 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Order, OrderAdmin)
+
+
+class LogAdmin(admin.ModelAdmin):
+    list_display = ('message')
+
+
+admin.site.register(Log, LogAdmin)
