@@ -145,3 +145,8 @@ DEFAULT_SETTINGS = {
 PAY_CHOICES = (
     ('YA', 'Яндекс Деньги: Комиссия 0.5%'),
 )
+
+try:
+    from local_settings import *
+except ImportError:
+    pass

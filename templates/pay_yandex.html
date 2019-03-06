@@ -10,8 +10,8 @@
                 <input type="hidden" name="short-dest" value="{{ pay_desc }}">
                 <input type="hidden" name="label" value="{{ order_id }}">
                 <input type="hidden" name="quickpay-form" value="shop">
-                <input type="hidden" name="targets" value="транзакция {{ order_id }}">
-                <input type="hidden" name="successURL" value="https://roblox.teamfnd.ru/success-payment?order={{ order_id }}">
+                <input type="hidden" name="targets" value="{{ pay_desc }}">
+                <input type="hidden" name="successURL" value="http://roblox.teamfnd.ru/success-payment?order={{ order_id }}">
                 <input type="hidden" name="sum" value="{{ wallet }}" data-type="number">
                 <input type="hidden" name="paymentType" value="PC">
                 <button style="width: 200px" class="btn btn-outline-danger btn-xl">Из яндекс кошелька: {{ wallet }}руб</button>
@@ -23,8 +23,8 @@
                 <input type="hidden" name="short-dest" value="{{ pay_desc }}">
                 <input type="hidden" name="label" value="RM{{ order_id }}">
                 <input type="hidden" name="quickpay-form" value="shop">
-                <input type="hidden" name="targets" value="транзакция {{ order_id }}">
-                <input type="hidden" name="successURL" value="https://roblox.teamfnd.ru/success-payment?order={{ order_id }}">
+                <input type="hidden" name="targets" value="{{ pay_desc }}">
+                <input type="hidden" name="successURL" value="http://roblox.teamfnd.ru/success-payment?order={{ order_id }}">
                 <input type="hidden" name="sum" value="{{ bank }}" data-type="number">
                 <input type="hidden" name="paymentType" value="AC">
                 <button style="width: 200px" class="btn btn-outline-info btn-xl">Банковской картой: {{ bank }}руб</button>
