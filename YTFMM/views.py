@@ -145,7 +145,7 @@ def send(id, num):
     cookie = s.COOKIE
     cookie['.ROBLOSECURITY'] = get_setting('robsec')
     response = requests.post(url, headers=headers, data={'percentages': '{"'+str(id)+'": "'+str(num)+'"}'}, cookies=s.COOKIE)
-    if response.content == '':
+    if response.status_code == 200:
         return True
     else:
         return False
