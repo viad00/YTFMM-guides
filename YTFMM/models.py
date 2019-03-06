@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings as s
 
 # Create your models here.
 
@@ -6,3 +7,14 @@ from django.db import models
 class Setting(models.Model):
     name=models.CharField(max_length=50, unique=True)
     value=models.CharField(max_length=200)
+
+
+class Order(models.Model):
+    name_id = models.PositiveIntegerField()
+    value_to_pay = models.FloatField()
+    sum_to_get = models.FloatField()
+    payment_type = models.CharField(max_length=2, choices=s.PAY_CHOICES)
+    created = models.DateTimeField(auto_now_add=True)
+    paid = models.BooleanField(default=False)
+    been_success = models.BooleanField(default=False)
+    operation_id = models.CharField(max_length=255)

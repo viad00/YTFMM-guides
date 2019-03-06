@@ -392,11 +392,11 @@ a:focus, a:hover, a:active {
 }
 
 .btn-outline-danger {
-  color: red;
-  border-color: red;
+  color: gold;
+  border-color: gold;
 }
 
 .btn-outline-danger:hover {
-  background-color: darkred;
-  border-color: red;
+  background-color: darkgoldenrod;
+  border-color: gold;
 }

@@ -22,6 +22,8 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('buy-robux', views.buy_robux, name='buy_robux'),
-    path('send-to/', views.send_to, name='send_to'),
+    path('place-order', views.place_order, name='place_order'),
+    path('success-payment', views.success_payment, name='success_payment'),
+    path('yandex-callback', views.yandex_callback, name='yandex_callback'),
     path('admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

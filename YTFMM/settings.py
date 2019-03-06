@@ -137,4 +137,11 @@ JOIN_URL = 'https://www.roblox.com/groups/{}'.format(GROUP_ID)
 
 DEFAULT_SETTINGS = {
     'percent': 0.5,
+    'robsec': COOKIE['.ROBLOSECURITY'],
+    'yandex_wallet': 410011214967721,
+    'yandex_secret': 'oT6fYTHexevCpnqvEepUQtlD',
 }
+
+PAY_CHOICES = (
+    ('YA', 'Яндекс Деньги: Комиссия 0.5%'),
+)
