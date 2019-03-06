@@ -87,19 +87,19 @@ def success_payment(request):
 @csrf_exempt
 def yandex_callback(request):
     try:
-        notification_type = request.POST['notification_type']
-        operation_id = request.POST['operation_id']
-        amount = request.POST['amount']
-        currency = request.POST['currency']
-        datetime = request.POST['datetime']
-        sender = request.POST['sender']
-        codepro = request.POST['codepro']
+        notification_type = request.POST['notification_type'][0]
+        operation_id = request.POST['operation_id'][0]
+        amount = request.POST['amount'][0]
+        currency = request.POST['currency'][0]
+        datetime = request.POST['datetime'][0]
+        sender = request.POST['sender'][0]
+        codepro = request.POST['codepro'][0]
         notification_secret = get_setting('yandex_secret')
-        label = request.POST['label']
+        label = request.POST['label'][0]
         # notification_type&operation_id&amount&currency&datetime&sender&codepro&notification_secret&label
         m = hashlib.sha1('{}&{}&{}&{}&{}&{}&{}&{}&{}'.format(notification_type, operation_id, amount, currency, datetime,
                                                              sender, codepro, notification_secret, label))
-        if m.hexdigest() == request.POST['sha1_hash']:
+        if m.hexdigest() == request.POST['sha1_hash'][0]:
             or_id = int(label[2:])
             s = Order.objects.get(id=or_id)
             if s.value_to_pay == float(amount):
