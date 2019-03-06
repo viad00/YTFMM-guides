@@ -139,7 +139,7 @@ DEFAULT_SETTINGS = {
     'percent': 0.5,
     'robsec': COOKIE['.ROBLOSECURITY'],
     'yandex_wallet': 410011214967721,
-    'yandex_secret': 'oT6fYTHexevCpnqvEepUQtlD',
+    'yandex_secret': 'TXCJafbP8AkUhnPvaxuEyZk/',
 }
 
 PAY_CHOICES = (
