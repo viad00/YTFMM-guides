@@ -186,7 +186,7 @@ header.masthead h1 {
 
 header.masthead h2 {
   font-size: 1.3rem;
-  color: red;
+  color: white;
 }
 
 @media (min-width: 992px) {

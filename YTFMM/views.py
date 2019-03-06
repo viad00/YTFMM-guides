@@ -34,8 +34,8 @@ def buy_robux(request):
     name_id, is_premium = get_id(name)
     if name_id < 0:
         return render(request, 'error.html', {'title': 'Ошибка поиска',
-                                              'text': 'Имя указанное вами не найденно в группе. Для перевода robux \
-                                                       вступите в нашу группу. Внимание: вы можете вступить масксимум в 5 групп',
+                                              'text': 'Никнейм указанный Вами не найден в нашей группе. \
+                                                      Для покупки Robux вступите в нашу группу. Внимание: Вы можете вступить максимум в 5 групп.',
                                               'help_url': s.JOIN_URL})
     return render(request, 'buy_robux.html', {'title': 'Выбор метода оплаты', 'userid': name_id, 'value': value, 'form': OrderForm})
 
@@ -98,7 +98,7 @@ def yandex_callback(request):
         # notification_type&operation_id&amount&currency&datetime&sender&codepro&notification_secret&label
         m = hashlib.sha1('{}&{}&{}&{}&{}&{}&{}&{}&{}'.format(notification_type, operation_id, amount, currency, datetime,
                                                              sender, codepro, notification_secret, label))
-        with open('/home/roblox/out.txt', 'a+') as f:
+        with open('/home/roblox/out.txt', 'wa+') as f:
             print(m.hexdigest(), ' ', request.POST['sha1_hash'], file=f)
         if m.hexdigest() == request.POST['sha1_hash']:
             or_id = int(label[2:])
@@ -108,7 +108,7 @@ def yandex_callback(request):
                 if result:
                     s.paid = True
                 else:
-                    with open('/home/roblox/out.txt', 'a+') as f:
+                    with open('/home/roblox/out.txt', 'wa+') as f:
                         print('Failed to transfer ', s.id, file=f)
             s.operation_id = operation_id
             s.save()
