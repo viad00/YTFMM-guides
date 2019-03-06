@@ -98,16 +98,18 @@ def yandex_callback(request):
         # notification_type&operation_id&amount&currency&datetime&sender&codepro&notification_secret&label
         m = hashlib.sha1('{}&{}&{}&{}&{}&{}&{}&{}&{}'.format(notification_type, operation_id, amount, currency, datetime,
                                                              sender, codepro, notification_secret, label))
-        print(m.hexdigest(), ' ', request.POST['sha1_hash'])
+        with open('/home/roblox/out.txt', 'a+') as f:
+            print(m.hexdigest(), ' ', request.POST['sha1_hash'], file=f)
         if m.hexdigest() == request.POST['sha1_hash']:
             or_id = int(label[2:])
             s = Order.objects.get(id=or_id)
             if s.value_to_pay == float(amount):
-                print('Paying for {}'.format(operation_id))
                 result = send(s.name_id, s.sum_to_get)
-                print('Done {} {}'.format(operation_id, result))
                 if result:
                     s.paid = True
+                else:
+                    with open('/home/roblox/out.txt', 'a+') as f:
+                        print('Failed to transfer ', s.id, file=f)
             s.operation_id = operation_id
             s.save()
             return HttpResponse()
