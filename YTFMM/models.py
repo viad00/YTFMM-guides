@@ -22,3 +22,9 @@ class Order(models.Model):
 
 class Log(models.Model):
     message = models.CharField(max_length=255)
+
+
+class Balance(models.Model):
+    name = models.CharField(max_length=20, unique=True)
+    value = models.IntegerField()
+    updated = models.DateTimeField()

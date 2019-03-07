@@ -182,7 +182,7 @@ header.masthead {
 header.masthead h1 {
   font-size: 3rem;
   line-height: 3rem;
-  color: rgb(220,0,0);
+  color: #f8173e;
 }
 
 header.masthead h2 {
@@ -400,4 +400,15 @@ a:focus, a:hover, a:active {
 .btn-outline-danger:hover {
   background-color: darkgoldenrod;
   border-color: gold;
+}
+
+.icon-robux {
+  background-image: url(https://www.roblox.com/images/Shared/branded_04182018.svg);
+  background-repeat: no-repeat;
+  display: inline-block;
+  vertical-align: middle;
+  background-position: -3px -155px;
+  background-size: 76px auto;
+  width: 35px;
+  height: 35px;
 }

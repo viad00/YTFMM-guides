@@ -2,14 +2,14 @@
 {% block content %}
     <header class="masthead bg-primary text-white text-center">
         <div class="container">
-            <!-- TODO: CDN Image -->
+            <!-- TODO: CDN Image
             <img width="200px" height="200px" src="https://cdn.discordapp.com/attachments/552947134438309890/552953052810838067/RM.png">
-            <br><br><br><br>
+            <br><br><br><br> -->
             <h1 class="text-uppercase mb-0">Купить Robux</h1>
             <hr class="star-light">
             <form action="{% url 'buy_robux' %}" method="post" class="buy-form">{% csrf_token %}
                 <label>Купить прямо сейчас!</label>
-                <input onchange="document.getElementById('to-pay').innerHTML = this.value*{{ percent }} + ' руб';" name="value" class="form-control" placeholder="Сумма" type="number" required>
+                <input onchange="document.getElementById('to-pay').innerHTML = this.value*{{ percent }} + ' руб';" name="value" class="form-control" placeholder="Кол-во robux для покупки" type="number" required>
                 <p>Сумма к оплате:</p><p id="to-pay"></p>
                 <div style="font-size: 14px">Текущая ставка: 1 robux = {{ percent }} руб</div>
                 <label>Ваш ник в Roblox</label>

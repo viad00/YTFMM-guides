@@ -2,17 +2,19 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django.conf import settings as s
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from .models import Setting, Order, Log
+from django.utils import timezone
+from .models import Setting, Order, Log, Balance
 from .forms import OrderForm
 import requests
 import hashlib
 import math
+import datetime
 
 # Create your views here.
 
 
 def index(request):
-    return render(request, 'index.html', {'title': 'Купить Robux', 'percent': get_setting('percent')})
+    return render(request, 'index.html', {'title': 'Купить Robux', 'percent': get_setting('percent'), 'balance': balance()})
 
 
 def get_setting(name):
@@ -31,14 +33,16 @@ def buy_robux(request):
         value = request.POST['value']
     except Exception:
         return render(request, 'error.html', {'title': 'Ошибка 400',
-                                              'text': 'Попробуйте венуться на прошлую страницу и попробовать снова'}, status=400)
+                                              'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
+                                              'balance': balance()}, status=400)
     name_id, is_premium = get_id(name)
     if name_id < 0:
         return render(request, 'error.html', {'title': 'Ошибка поиска',
                                               'text': 'Никнейм указанный Вами не найден в нашей группе. \
                                                       Для покупки Robux вступите в нашу группу. Внимание: Вы можете вступить максимум в 5 групп.',
-                                              'help_url': s.JOIN_URL})
-    return render(request, 'buy_robux.html', {'title': 'Выбор метода оплаты', 'userid': name_id, 'value': value, 'form': OrderForm})
+                                              'help_url': s.JOIN_URL,
+                                              'balance': balance()})
+    return render(request, 'buy_robux.html', {'title': 'Выбор метода оплаты', 'userid': name_id, 'value': value, 'form': OrderForm, 'balance': balance()})
 
 
 def place_order(request):
@@ -48,7 +52,8 @@ def place_order(request):
             order = Order(name_id=form.cleaned_data['name_id'], sum_to_get=form.cleaned_data['sum_to_get'], value_to_pay=float(form.cleaned_data['sum_to_get'])*float(get_setting('percent')), payment_type=form.cleaned_data['pay_type'])
             if balance_status() <= 10000:
                 return render(request, 'error.html', {'title': 'Ошибка сервера',
-                                                      'text': 'Деньги кончились :). Пожалуйста сообщите нам об этом и мы восполним запас.'})
+                                                      'text': 'Деньги кончились :). Пожалуйста сообщите нам об этом и мы восполним запас.',
+                                                      'balance': balance()})
             if order.payment_type == 'YA':
                 comission_wallet = math.ceil((order.value_to_pay * 0.005 + order.value_to_pay)*100)/100
                 comission_bank = math.ceil((order.value_to_pay * 0.02 + order.value_to_pay)*100)/100
@@ -59,10 +64,12 @@ def place_order(request):
                                                            'bank': comission_bank,
                                                            'pay_to': pay_to,
                                                            'pay_desc': 'Roblox Mafia: Покупка {} Robux, Заказ №{}'.format(order.sum_to_get, order.id),
-                                                           'order_id': order.id})
+                                                           'order_id': order.id,
+                                                           'balance': balance()})
         else:
             return render(request, 'error.html', {'title': 'Ошибка 400',
-                                                  'text': 'Попробуйте венуться на прошлую страницу и попробовать снова'},
+                                                  'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
+                                                  'balance': balance()},
                           status=400)
     else:
         return redirect('index')
@@ -75,14 +82,16 @@ def success_payment(request):
             s = Order.objects.get(id=order_id)
         except Exception:
             return render(request, 'error.html', {'title': 'Ошибка 400',
-                                                  'text': 'Попробуйте венуться на прошлую страницу и попробовать снова'},
+                                                  'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
+                                                  'balance': balance()},
                           status=400)
         s.been_success = True
         s.save()
-        return render(request, 'success.html', {'title': 'Спасибо за покупку!'})
+        return render(request, 'success.html', {'title': 'Спасибо за покупку!','balance': balance()})
     else:
         return render(request, 'error.html', {'title': 'Ошибка 404',
-                                              'text': 'Проверьте правильность адреса и повторите попытку'}, status=404)
+                                              'text': 'Проверьте правильность адреса и повторите попытку',
+                                              'balance': balance()}, status=404)
 
 
 @csrf_exempt
@@ -116,6 +125,9 @@ def yandex_callback(request):
                 result = send(s.name_id, s.sum_to_get)
                 if result:
                     s.paid = True
+                    ba = Balance.objects.get(name='roblox')
+                    ba.value -= s.sum_to_get
+                    ba.save()
                 else:
                     # Failed to verify, save log
                     Log(message='Failed to send funds, order_id: {}'.format(s.id)).save()
@@ -179,3 +191,19 @@ def balance_status():
     response = response[:ptr]
     response = int(response)
     return response
+
+
+def balance():
+    try:
+        balance_rbx = Balance.objects.get(name='roblox')
+    except Exception:
+        balance_rbx = Balance(name='roblox', updated=timezone.now(), value=balance_status())
+        balance_rbx.save()
+    if (balance_rbx.updated + datetime.timedelta(minutes=15)) < timezone.now():
+        try:
+            balance_rbx.value = balance_status()
+            balance_rbx.updated = timezone.now()
+            balance_rbx.save()
+        except Exception:
+            Log(message='Failed to update balance {}'.format(datetime.datetime.now())).save()
+    return balance_rbx.value - 10000
