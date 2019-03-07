@@ -12,7 +12,7 @@ class Setting(models.Model):
 class Order(models.Model):
     name_id = models.PositiveIntegerField()
     value_to_pay = models.FloatField()
-    sum_to_get = models.FloatField()
+    sum_to_get = models.IntegerField()
     payment_type = models.CharField(max_length=2, choices=s.PAY_CHOICES)
     created = models.DateTimeField(auto_now_add=True)
     paid = models.BooleanField(default=False)
