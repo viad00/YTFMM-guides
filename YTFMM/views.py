@@ -42,7 +42,7 @@ def buy_robux(request):
                                                       Для покупки Robux вступите в нашу группу. Внимание: Вы можете вступить максимум в 5 групп.',
                                               'help_url': s.JOIN_URL,
                                               'balance': balance()})
-    return render(request, 'buy_robux.html', {'title': 'Выбор метода оплаты', 'userid': name_id, 'value': value, 'form': OrderForm, 'balance': balance()})
+    return render(request, 'buy_robux.html', {'title': 'Выбор метода оплаты', 'username': name, 'userid': name_id, 'value': value, 'form': OrderForm, 'balance': balance()})
 
 
 def place_order(request):

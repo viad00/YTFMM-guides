@@ -4,6 +4,10 @@
         <div class="container">
             <h1 class="text-uppercase mb-0">Выберете тип оплаты</h1>
             <hr class="star-light">
+            <h2>{{ username }}</h2>
+            <!--
+            <img id="avatar" alt="User avatar" src="https://static.rbxcdn.com/images/spinners/spinner16x16.gif">
+            -->
             <form action="{% url 'place_order' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="{{ form.name_id.html_name }}" required hidden value="{{ userid }}">
@@ -19,5 +23,26 @@
                 Яндекс Деньги: Комиссия 0.5% при оплате с кошелька и 2% при оплате с банковской карты.<br>
             </div>
         </div>
+    <!--
+    <script type="application/javascript">
+        var url = "https://www.roblox.com/avatar-thumbnails?params=%5B%7B%22imageSize%22%3A%22medium%22%2C%22noClick%22%3Afalse%2C%22noOverlays%22%3Afalse%2C%22userId%22%3A%22{{ userid }}%22%2C%22userOutfitId%22%3A0%2C%22name%22%3A%22%22%7D%5D";
+        function ready() {
+            $.ajax({
+                dataType: 'jsonp',
+                url: url,
+                success: function(){
+                    alert('Load was performed.');
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            }).done(function(data) {
+                console.log(data);
+
+            });
+        }
+        document.addEventListener("DOMContentLoaded", ready);
+    </script>
+    -->
     </header>
 {% endblock %}
