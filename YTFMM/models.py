@@ -6,7 +6,7 @@ from django.conf import settings as s
 
 class Setting(models.Model):
     name=models.CharField(max_length=50, unique=True)
-    value=models.CharField(max_length=200)
+    value=models.TextField(max_length=2000)
 
 
 class Order(models.Model):
