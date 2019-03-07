@@ -6,6 +6,7 @@ from .models import Setting, Order, Log
 from .forms import OrderForm
 import requests
 import hashlib
+import math
 
 # Create your views here.
 
@@ -49,8 +50,8 @@ def place_order(request):
                 return render(request, 'error.html', {'title': 'Ошибка сервера',
                                                       'text': 'Деньги кончились :). Пожалуйста сообщите нам об этом и мы восполним запас.'})
             if order.payment_type == 'YA':
-                comission_wallet = order.value_to_pay * 0.005 + order.value_to_pay
-                comission_bank = order.value_to_pay * 0.02 + order.value_to_pay
+                comission_wallet = math.ceil((order.value_to_pay * 0.005 + order.value_to_pay)*100)/100
+                comission_bank = math.ceil((order.value_to_pay * 0.02 + order.value_to_pay)*100)/100
                 pay_to = get_setting('yandex_wallet')
                 order.save()
                 return render(request, 'pay_yandex.html', {'title':'Оплата Яндекс Деньгами',
@@ -111,7 +112,7 @@ def yandex_callback(request):
                 return HttpResponse()
             or_id = int(label[2:])
             s = Order.objects.get(id=or_id)
-            if s.value_to_pay == float(amount):
+            if s.value_to_pay <= float(amount):
                 result = send(s.name_id, s.sum_to_get)
                 if result:
                     s.paid = True
