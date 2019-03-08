@@ -16,7 +16,7 @@
                 <input type="hidden" name="paymentType" value="PC">
                 <button style="width: 200px" class="btn btn-outline-danger btn-xl">Из яндекс кошелька: {{ wallet }}руб.</button>
             </form>
-            <!--<br>
+            <br>
             <form action="https://money.yandex.ru/quickpay/confirm.xml" method="post">
                 <input type="hidden" name="receiver" value="{{ pay_to }}">
                 <input type="hidden" name="formcomment" value="{{ pay_desc }}">
@@ -28,7 +28,7 @@
                 <input type="hidden" name="sum" value="{{ bank }}" data-type="number">
                 <input type="hidden" name="paymentType" value="AC">
                 <button style="width: 200px" class="btn btn-outline-info btn-xl">Банковской картой: {{ bank }}руб.</button>
-            </form>-->
+            </form>
         </div>
     </header>
 {% endblock %}

@@ -56,7 +56,7 @@ def place_order(request):
                                                       'balance': balance()})
             if order.payment_type == 'YA':
                 comission_wallet = math.ceil((order.value_to_pay * 0.005 + order.value_to_pay)*100)/100
-                comission_bank = math.ceil((order.value_to_pay * 0.02 + order.value_to_pay)*100)/100
+                comission_bank = math.ceil((order.value_to_pay / (1-0.02))*100)/100
                 pay_to = get_setting('yandex_wallet')
                 order.save()
                 return render(request, 'pay_yandex.html', {'title':'Оплата Яндекс Деньгами',
