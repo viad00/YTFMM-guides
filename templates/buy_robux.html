@@ -8,20 +8,57 @@
             <!--
             <img id="avatar" alt="User avatar" src="https://static.rbxcdn.com/images/spinners/spinner16x16.gif">
             -->
+            <br>
             <form action="{% url 'place_order' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="{{ form.name_id.html_name }}" required hidden value="{{ userid }}">
                 <input type="hidden" name="{{ form.sum_to_get.html_name }}" required hidden value="{{ value }}">
-                {% for radio in form.pay_type %}
-                    {{ radio }}<br>
-                {% endfor %}
-                <button class="btn btn-dark btn-xl" type="submit">Выбрать</button>
+                <div class="container">
+                    <div class="btn-group-toggle" data-toggle="buttons">
+                        <div class="card-deck mb-3 text-center">
+                            <div class="card mb-4 shadow-sm card-qiwi">
+      <div style="height: 74px" class="card-header card-qiwi-header">
+          <img alt="Qiwi" src="https://corp.qiwi.com/dam/jcr:9c9065a3-885c-4d7f-ba7d-6900c39947b4/qiwi-name.png">
+      </div>
+      <div class="card-body card-qiwi-body">
+        <ul class="list-unstyled mt-3 mb-4">
+          <li>Комиссии:</li>
+          <li>0% при оплате с кошелька</li>
+          <li>1% при оплате с банковской карты</li>
+        </ul>
+        <label class="btn btn-lg btn-dark btn-qiwi">
+            <input style="position: absolute; clip: rect(0,0,0,0); pointer-events: none;" type="radio" name="pay_type" value="QI" autocomplete="off" required> Выбрать
+        </label>
+      </div>
+    </div>
+                                <div class="card mb-4 shadow-sm card-yandex">
+      <div style="height: 74px" class="card-header card-yandex-header">
+        <img style="padding-top: 5px" alt="Яндекс Деньги" src="https://money.yandex.ru/i/html-letters/header__logo.png">
+      </div>
+      <div class="card-body card-yandex-body">
+        <ul class="list-unstyled mt-3 mb-4">
+          <li>Комиссии:</li>
+          <li>0.5% при оплате с кошелька</li>
+          <li>2% при оплате с банковской карты</li>
+        </ul>
+        <label class="btn btn-lg btn-dark btn-yandex">
+            <input style="position: absolute; clip: rect(0,0,0,0); pointer-events: none;" type="radio" name="pay_type" value="YA" autocomplete="off" required> Выбрать
+        </label>
+      </div>
+    </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-dark btn-xl" type="submit">Продолжить</button>
             </form>
             <br>
+        <!--
             <div style="font-size: 14px">
                 Информация по комиссиям:<br>
                 Яндекс Деньги: Комиссия 0.5% при оплате с кошелька и 2% при оплате с банковской карты.<br>
+                QIWI: Комиссия 0% при оплате с кошелька и 1% при оплате с банковской карты.<br>
             </div>
+            -->
         </div>
     <!--
     <script type="application/javascript">

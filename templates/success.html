@@ -11,5 +11,23 @@
                 зачисления, обращайтесь к нам.
             </p>
         </div>
+    <script>
+        function ready() {
+        gtag('event', 'purchase', {
+          "transaction_id": "{{ order.id }}",
+          "affiliation": "Roblox Mafia",
+          "value": {{ order.value_to_pay }},
+          "currency": "RUB",
+          "items": [
+            {
+              "id": "1",
+              "name": "Roblox",
+              "quantity": {{ order.sum_to_get }},
+             "price": '0.5'
+            }
+          ]
+        });}
+        document.addEventListener("DOMContentLoaded", ready);
+    </script>
     </header>
 {% endblock %}

@@ -25,5 +25,6 @@ urlpatterns = [
     path('place-order', views.place_order, name='place_order'),
     path('success-payment', views.success_payment, name='success_payment'),
     path('yandex-callback', views.yandex_callback, name='yandex_callback'),
+    path('qiwi-callback', views.qiwi_callback, name='qiwi_callback'),
     path('admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -9,6 +9,9 @@ import requests
 import hashlib
 import math
 import datetime
+import json
+import hmac
+import base64
 
 # Create your views here.
 
@@ -66,6 +69,25 @@ def place_order(request):
                                                            'pay_desc': 'Roblox Mafia: Покупка {} Robux, Заказ №{}'.format(order.sum_to_get, order.id),
                                                            'order_id': order.id,
                                                            'balance': balance()})
+            if order.payment_type == 'QI':
+                order.save()
+                dat = {
+                    "amount": {
+                        "currency": "RUB",
+                        "value": '{0:0.2f}'.format(math.ceil(order.value_to_pay*100)/100)
+                    },
+                    "comment": "Roblox Mafia: Покупка {} Robux, Заказ №{}".format(order.sum_to_get, order.id),
+                    "expirationDateTime": (datetime.datetime.now()+datetime.timedelta(days=2)).isoformat(timespec='seconds')+'+03:00'
+                }
+                headers = {
+                    'Authorization': 'Bearer {}'.format(get_setting('qiwi_seckey')),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+                response = requests.put('https://api.qiwi.com/partner/bill/v1/bills/{}'.format(order.id), data=json.dumps(dat), headers=headers)
+                response = json.loads(str(response.content, encoding='UTF-8'))
+                link = response['payUrl'] + '&successUrl=https://robloxmafia.ru/success-payment?order=' + str(order.id)
+                return redirect(link)
         else:
             return render(request, 'error.html', {'title': 'Ошибка 400',
                                                   'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
@@ -87,7 +109,7 @@ def success_payment(request):
                           status=400)
         s.been_success = True
         s.save()
-        return render(request, 'success.html', {'title': 'Спасибо за покупку!','balance': balance()})
+        return render(request, 'success.html', {'title': 'Спасибо за покупку!','balance': balance(),'order':s})
     else:
         return render(request, 'error.html', {'title': 'Ошибка 404',
                                               'text': 'Проверьте правильность адреса и повторите попытку',
@@ -121,7 +143,7 @@ def yandex_callback(request):
                 return HttpResponse()
             or_id = int(label[2:])
             s = Order.objects.get(id=or_id)
-            if s.value_to_pay <= float(amount):
+            if s.value_to_pay <= float(amount) and not s.paid:
                 result = send(s.name_id, s.sum_to_get)
                 if result:
                     s.paid = True
@@ -132,7 +154,7 @@ def yandex_callback(request):
                     # Failed to verify, save log
                     Log(message='Failed to send funds, order_id: {}'.format(s.id)).save()
             else:
-                Log(message='Value mismatch got: {} need: {}'.format(s.value_to_pay, float(amount))).save()
+                Log(message='Value mismatch got: {} need: {} {}'.format(s.value_to_pay, float(amount), s.id)).save()
             s.operation_id = operation_id
             s.save()
             return HttpResponse()
@@ -142,6 +164,44 @@ def yandex_callback(request):
     except Exception as e:
         Log(message='Bad try: {}'.format(str(e))).save()
         return HttpResponseBadRequest()
+
+
+@csrf_exempt
+def qiwi_callback(request):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+    try:
+        test_sum = request.META['HTTP_X_API_SIGNATURE_SHA256']  # X-Api-Signature-SHA256
+        string = json.loads(str(request.body, encoding='UTF-8'))['bill']
+    except Exception:
+        Log(message='Bad qiwi parse: {} {}'.format(request.body, datetime.datetime.now())).save()
+        return HttpResponseBadRequest()
+    invoice_parameters = '{}|{}|{}|{}|{}'.format(string['amount']['currency'], string['amount']['value'], string['billId'], string['siteId'], string['status']['value'])
+    has = hmac.new(get_setting('qiwi_seckey').encode(), invoice_parameters.encode(), 'SHA256').hexdigest()
+    if hmac.compare_digest(has, test_sum):
+        try:
+            s = Order.objects.get(id=string['billId'])
+            if s.value_to_pay <= float(string['amount']['value']) and not s.paid:
+                #Log(message='Qiwi duplicate, order_id: {}'.format(s.id)).save()
+                # This is a duplicate (qiwi sends it)
+                result = send(s.name_id, s.sum_to_get)
+                if result:
+                    s.paid = True
+                    ba = Balance.objects.get(name='roblox')
+                    ba.value -= s.sum_to_get
+                    ba.save()
+                else:
+                    Log(message='Failed to send funds, order_id: {}'.format(s.id)).save()
+            else:
+                Log(message='Value mismatch got: {} need: {} {}'.format(s.value_to_pay, string['amount']['value'], s.id)).save()
+            s.operation_id = '{} {}'.format(string['billId'], string['siteId'])
+            s.save()
+            return HttpResponse('{"error":"0"}', content_type='application/json')
+        except Exception:
+            Log(message='Qiwi Bill error {}'.format(request.body)).save()
+    else:
+        Log(message='Hash qiwi: {}'.format(request.body)).save()
+        return HttpResponseForbidden('{"error":"Hashes mismatch"}', content_type='application/json')
 
 
 def send(id, num):
