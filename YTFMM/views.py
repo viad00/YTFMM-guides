@@ -77,7 +77,7 @@ def place_order(request):
                         "value": '{0:0.2f}'.format(math.ceil(order.value_to_pay*100)/100)
                     },
                     "comment": "Roblox Mafia: Покупка {} Robux, Заказ №{}".format(order.sum_to_get, order.id),
-                    "expirationDateTime": (datetime.datetime.now()+datetime.timedelta(days=2)).isoformat(timespec='seconds')+'+03:00'
+                    "expirationDateTime": (datetime.datetime.now().replace(microsecond=0)+datetime.timedelta(days=2)).isoformat()+'+03:00'
                 }
                 headers = {
                     'Authorization': 'Bearer {}'.format(get_setting('qiwi_seckey')),
