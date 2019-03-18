@@ -449,7 +449,7 @@ a:focus, a:hover, a:active {
 }
 
 .btn-yandex.active:after {
-  content: "✔";
+  content: "\2714";
 }
 
 .card-qiwi {
