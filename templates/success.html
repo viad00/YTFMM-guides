@@ -1,4 +1,5 @@
 {% extends 'layout.html' %}
+{% load l10n %}
 {% block content %}
     <header class="masthead bg-primary text-white text-center">
         <div class="container">
@@ -16,7 +17,7 @@
         gtag('event', 'purchase', {
           "transaction_id": "{{ order.id }}",
           "affiliation": "Roblox Mafia",
-          "value": {{ order.value_to_pay }},
+          "value": {{ order.value_to_pay|unlocalize }},
           "currency": "RUB",
           "items": [
             {
