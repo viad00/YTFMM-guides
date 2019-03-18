@@ -484,5 +484,5 @@ a:focus, a:hover, a:active {
 }
 
 .btn-qiwi.active:after {
-  content: "✔";
+  content: "\2714";
 }
