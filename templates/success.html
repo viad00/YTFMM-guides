@@ -5,6 +5,7 @@
         <div class="container">
             <h1 class="text-uppercase mb-0">Спасибо за покупку!</h1>
             <hr class="star-light">
+            <h2 id="status">Включите JavaScript для получения информации о платеже</h2>
             <p>Отлично! Ваши robux будут зачислины в ближайшее время.
                 Если этого не происходит, то это повод обратиться к нам,
                 однако это может произойти из-за задержки платёжных систем.
@@ -12,23 +13,52 @@
                 зачисления, обращайтесь к нам.
             </p>
         </div>
-    <script>
-        function ready() {
-        gtag('event', 'purchase', {
-          "transaction_id": "{{ order.id }}",
-          "affiliation": "Roblox Mafia",
-          "value": {{ order.value_to_pay|unlocalize }},
-          "currency": "RUB",
-          "items": [
-            {
-              "id": "1",
-              "name": "Roblox",
-              "quantity": {{ order.sum_to_get }},
-             "price": '0.5'
-            }
-          ]
-        });}
-        document.addEventListener("DOMContentLoaded", ready);
-    </script>
     </header>
+{% endblock %}
+{% block scripts %}
+    <script>
+        function confirm() {
+            gtag('event', 'purchase', {
+                "transaction_id": "{{ order.id }}",
+                "affiliation": "Roblox Mafia",
+                "value": {{ order.value_to_pay|unlocalize }},
+                "currency": "RUB",
+                "items": [
+                    {
+                        "id": "1",
+                        "name": "Roblox",
+                        "quantity": {{ order.sum_to_get }},
+                        "price": '0.5'
+                    }
+                    ]
+            });
+        }
+        var final = false;
+        function checkStatus() {
+            $.ajax({
+                url: "{% url 'check_status' %}",
+                data: {
+                    order: {{ order.id }}
+                },
+                dataType: 'json',
+                success: function( result ) {
+                    stat = $("#status");
+                    stat.text(result.status);
+                    stat.attr('style', 'color: '+result.color+';');
+                    final = result.final;
+                    if (result.color === 'green') confirm();
+                }
+            });
+        }
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        async function loop() {
+            while (!final) {
+                checkStatus();
+                await sleep(5000);
+            }
+        }
+        loop();
+    </script>
 {% endblock %}

@@ -81,7 +81,6 @@ def place_order(request):
                 }
                 headers = {
                     'Authorization': 'Bearer {}'.format(get_setting('qiwi_seckey')),
-                    'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 }
                 response = requests.put('https://api.qiwi.com/partner/bill/v1/bills/{}'.format(order.id), data=json.dumps(dat), headers=headers)
@@ -107,13 +106,96 @@ def success_payment(request):
                                                   'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
                                                   'balance': balance()},
                           status=400)
-        s.been_success = True
-        s.save()
+        if not s.been_success:
+            s.been_success = True
+            s.save()
         return render(request, 'success.html', {'title': 'Спасибо за покупку!','balance': balance(),'order':s})
     else:
         return render(request, 'error.html', {'title': 'Ошибка 404',
                                               'text': 'Проверьте правильность адреса и повторите попытку',
                                               'balance': balance()}, status=404)
+
+
+def check_status(request):
+    resp = {
+        "status": "Неверный запрос",
+        "color": "red",
+        "final": True
+    }
+    if request.method == 'GET' and 'order' in request.GET:
+        try:
+            order_id = int(request.GET['order'])
+            o = Order.objects.get(id=order_id)
+        except Exception:
+            return HttpResponseBadRequest(json.dumps(resp))
+        if o.paid:
+            resp['status'] = 'Перевод выполен, robux отправленны'
+            resp['color'] = 'green'
+            return HttpResponse(json.dumps(resp))
+        else:
+            # Jobs to check payments goes here
+            # Try to update qiwi
+            try:
+                headers = {
+                    'Authorization': 'Bearer {}'.format(get_setting('qiwi_seckey')),
+                    'Content-Type': 'application/json',
+                }
+                response = requests.get('https://api.qiwi.com/partner/bill/v1/bills/{}'.format(o.id), headers=headers)
+                response = json.loads(str(response.content, encoding='UTF-8'))
+                # Pay funds
+                if response['status']['value'] == 'PAID' and o.operation_id != 'Locked':
+                    o.operation_id = 'Locked'
+                    o.save()
+                    if o.value_to_pay <= float(response['amount']['value']) and not o.paid:
+                        # Log(message='Qiwi duplicate, order_id: {}'.format(o.id)).save()
+                        # This is a duplicate (qiwi sends it)
+                        result = send(o.name_id, o.sum_to_get)
+                        if result:
+                            o.paid = True
+                            ba = Balance.objects.get(name='roblox')
+                            ba.value -= o.sum_to_get
+                            ba.save()
+                        else:
+                            Log(message='Failed to send funds, order_id: {}'.format(o.id)).save()
+                    else:
+                        Log(message='Value mismatch got: {} need: {} {}'.format(o.value_to_pay,
+                                                                                response['amount']['value'], o.id)).save()
+                    o.operation_id = '{} {}'.format(response['billId'], response['siteId'])
+                    o.save()
+            except Exception:
+                pass
+            # End of block
+            resp['status'] = 'Ожидание потверждения от {}. Пожалуйста, не уходите со страницы.'.format(o.get_payment_type_display())
+            resp['color'] = 'orange'
+            resp['final'] = False
+            return HttpResponse(json.dumps(resp))
+    else:
+        return HttpResponseBadRequest(json.dumps(resp))
+
+
+def get_avatar(request):
+    resp = {
+        "url": "",
+        "success": False
+    }
+    if request.method == 'GET' and 'user_id' in request.GET:
+        try:
+            user_id = int(request.GET['user_id'])
+            url = "https://www.roblox.com/avatar-thumbnails?params=%5B%7B%22imageSize%22%3A%22medium%22%2C%22noClick%22%3Afalse%2C%22noOverlays%22%3Afalse%2C%22userId%22%3A%22{}%22%2C%22userOutfitId%22%3A0%2C%22name%22%3A%22%22%7D%5D".format(
+                user_id)
+        except Exception:
+            return HttpResponseBadRequest(json.dumps(resp))
+        try:
+            response = requests.get(url)
+            response = str(response.content, encoding='UTF-8')
+            response = response[1:len(response)-1]
+            resp['url'] = json.loads(response)['thumbnailUrl']
+            resp['success'] = True
+            return HttpResponse(json.dumps(resp))
+        except Exception:
+            return HttpResponse(json.dumps(resp))
+    else:
+        return HttpResponseBadRequest(json.dumps(resp))
 
 
 @csrf_exempt
@@ -143,6 +225,10 @@ def yandex_callback(request):
                 return HttpResponse()
             or_id = int(label[2:])
             s = Order.objects.get(id=or_id)
+            if s.operation_id == 'Locked':
+                return HttpResponse()
+            s.operation_id = 'Locked'
+            s.save()
             if s.value_to_pay <= float(amount) and not s.paid:
                 result = send(s.name_id, s.sum_to_get)
                 if result:
@@ -181,6 +267,10 @@ def qiwi_callback(request):
     if hmac.compare_digest(has, test_sum):
         try:
             s = Order.objects.get(id=string['billId'])
+            if s.operation_id == 'Locked':
+                return HttpResponse('{"error":"0"}', content_type='application/json')
+            s.operation_id = 'Locked'
+            s.save()
             if s.value_to_pay <= float(string['amount']['value']) and not s.paid:
                 #Log(message='Qiwi duplicate, order_id: {}'.format(s.id)).save()
                 # This is a duplicate (qiwi sends it)

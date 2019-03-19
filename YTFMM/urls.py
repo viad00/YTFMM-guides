@@ -26,5 +26,7 @@ urlpatterns = [
     path('success-payment', views.success_payment, name='success_payment'),
     path('yandex-callback', views.yandex_callback, name='yandex_callback'),
     path('qiwi-callback', views.qiwi_callback, name='qiwi_callback'),
+    path('check-status', views.check_status, name='check_status'),
+    path('get-avatar', views.get_avatar, name='get_avatar'),
     path('admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

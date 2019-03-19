@@ -5,9 +5,9 @@
             <h1 class="text-uppercase mb-0">Выберете тип оплаты</h1>
             <hr class="star-light">
             <h2>{{ username }}</h2>
-            <!--
-            <img id="avatar" alt="User avatar" src="https://static.rbxcdn.com/images/spinners/spinner16x16.gif">
-            -->
+            <img style="border: 5px solid grey; background: white" id="avatar" alt="User avatar" src="https://static.rbxcdn.com/images/spinners/spinner16x16.gif">
+            <br><br>
+            <h2>Покупка {{ value }} Robux</h2>
             <br>
             <form action="{% url 'place_order' %}" method="post">
                 {% csrf_token %}
@@ -26,6 +26,8 @@
           <li>Комиссии:</li>
           <li>0% при оплате с кошелька</li>
           <li>1% при оплате с банковской карты</li>
+            <h6 style="color: orange">Внимание!</h6>
+            <li>Не уходите со страницы после оплаты, иначе вы можете не получить ваши robux.</li>
         </ul>
         <label class="btn btn-lg btn-dark btn-qiwi">
             <input style="position: absolute; clip: rect(0,0,0,0); pointer-events: none;" type="radio" name="pay_type" value="QI" autocomplete="off" required> Выбрать
@@ -62,26 +64,26 @@
             </div>
             -->
         </div>
-    <!--
+    </header>
+{% endblock %}
+{% block scripts %}
     <script type="application/javascript">
-        var url = "https://www.roblox.com/avatar-thumbnails?params=%5B%7B%22imageSize%22%3A%22medium%22%2C%22noClick%22%3Afalse%2C%22noOverlays%22%3Afalse%2C%22userId%22%3A%22{{ userid }}%22%2C%22userOutfitId%22%3A0%2C%22name%22%3A%22%22%7D%5D";
         function ready() {
             $.ajax({
-                dataType: 'jsonp',
-                url: url,
-                success: function(){
-                    alert('Load was performed.');
+                dataType: 'json',
+                url: "{% url 'get_avatar' %}",
+                data: {
+                    user_id: {{ userid }}
                 },
-                error: function (err) {
-                    console.log(err);
+                success: function(result){
+                    if (result.success) {
+                        $('#avatar').attr("src", result.url);
+                    } else {
+                        $('#avatar').hide();
+                    }
                 }
-            }).done(function(data) {
-                console.log(data);
-
             });
         }
         document.addEventListener("DOMContentLoaded", ready);
     </script>
-    -->
-    </header>
 {% endblock %}
