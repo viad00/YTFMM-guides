@@ -106,6 +106,8 @@ def success_payment(request):
                                                   'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
                                                   'balance': balance()},
                           status=400)
+        if not s.paid:
+            check_routine(s)
         if not s.been_success:
             s.been_success = True
             s.save()
@@ -134,36 +136,7 @@ def check_status(request):
             return HttpResponse(json.dumps(resp))
         else:
             # Jobs to check payments goes here
-            # Try to update qiwi
-            try:
-                headers = {
-                    'Authorization': 'Bearer {}'.format(get_setting('qiwi_seckey')),
-                    'Content-Type': 'application/json',
-                }
-                response = requests.get('https://api.qiwi.com/partner/bill/v1/bills/{}'.format(o.id), headers=headers)
-                response = json.loads(str(response.content, encoding='UTF-8'))
-                # Pay funds
-                if response['status']['value'] == 'PAID' and o.operation_id != 'Locked':
-                    o.operation_id = 'Locked'
-                    o.save()
-                    if o.value_to_pay <= float(response['amount']['value']) and not o.paid:
-                        # Log(message='Qiwi duplicate, order_id: {}'.format(o.id)).save()
-                        # This is a duplicate (qiwi sends it)
-                        result = send(o.name_id, o.sum_to_get)
-                        if result:
-                            o.paid = True
-                            ba = Balance.objects.get(name='roblox')
-                            ba.value -= o.sum_to_get
-                            ba.save()
-                        else:
-                            Log(message='Failed to send funds, order_id: {}'.format(o.id)).save()
-                    else:
-                        Log(message='Value mismatch got: {} need: {} {}'.format(o.value_to_pay,
-                                                                                response['amount']['value'], o.id)).save()
-                    o.operation_id = '{} {}'.format(response['billId'], response['siteId'])
-                    o.save()
-            except Exception:
-                pass
+            check_routine(o)
             # End of block
             resp['status'] = 'Ожидание потверждения от {}. Пожалуйста, не уходите со страницы.'.format(o.get_payment_type_display())
             resp['color'] = 'orange'
@@ -171,6 +144,40 @@ def check_status(request):
             return HttpResponse(json.dumps(resp))
     else:
         return HttpResponseBadRequest(json.dumps(resp))
+
+
+# Try to update qiwi
+def check_routine(o):
+    try:
+        headers = {
+            'Authorization': 'Bearer {}'.format(get_setting('qiwi_seckey')),
+            'Content-Type': 'application/json',
+        }
+        response = requests.get('https://api.qiwi.com/partner/bill/v1/bills/{}'.format(o.id), headers=headers)
+        response = json.loads(str(response.content, encoding='UTF-8'))
+        # Pay funds
+        if response['status']['value'] == 'PAID' and o.operation_id != 'Locked':
+            o.operation_id = 'Locked'
+            o.save()
+            if o.value_to_pay <= float(response['amount']['value']) and not o.paid:
+                # Log(message='Qiwi duplicate, order_id: {}'.format(o.id)).save()
+                # This is a duplicate (qiwi sends it)
+                result = send(o.name_id, o.sum_to_get)
+                if result:
+                    o.paid = True
+                    ba = Balance.objects.get(name='roblox')
+                    ba.value -= o.sum_to_get
+                    ba.save()
+                else:
+                    Log(message='Failed to send funds, order_id: {}'.format(o.id)).save()
+            else:
+                if not o.paid:
+                    Log(message='Value mismatch got: {} need: {} {}'.format(o.value_to_pay,
+                                                                        response['amount']['value'], o.id)).save()
+            o.operation_id = '{} {}'.format(response['billId'], response['siteId'])
+            o.save()
+    except Exception:
+        pass
 
 
 def get_avatar(request):
@@ -240,7 +247,8 @@ def yandex_callback(request):
                     # Failed to verify, save log
                     Log(message='Failed to send funds, order_id: {}'.format(s.id)).save()
             else:
-                Log(message='Value mismatch got: {} need: {} {}'.format(s.value_to_pay, float(amount), s.id)).save()
+                if not s.paid:
+                    Log(message='Value mismatch got: {} need: {} {}'.format(s.value_to_pay, float(amount), s.id)).save()
             s.operation_id = operation_id
             s.save()
             return HttpResponse()
