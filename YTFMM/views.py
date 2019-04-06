@@ -55,7 +55,7 @@ def place_order(request):
             order = Order(name_id=form.cleaned_data['name_id'], sum_to_get=form.cleaned_data['sum_to_get'], value_to_pay=float(form.cleaned_data['sum_to_get'])*float(get_setting('percent')), payment_type=form.cleaned_data['pay_type'])
             if balance_status() <= 10000:
                 return render(request, 'error.html', {'title': 'Ошибка сервера',
-                                                      'text': 'Деньги кончились :). Пожалуйста сообщите нам об этом и мы восполним запас.',
+                                                      'text': 'Извините, РОБУКСЫ закончились. Ожидайте пополнения.',
                                                       'balance': balance()})
             if order.payment_type == 'YA':
                 comission_wallet = math.ceil((order.value_to_pay * 0.005 + order.value_to_pay)*100)/100
