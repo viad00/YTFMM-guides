@@ -340,13 +340,11 @@ def get_id(name):
 def balance_status():
     url = s.CSRF_URL
     response = requests.get(url, cookies=s.COOKIE)
-    stri = b'Group Funds:'
-    ptr = response.content.find(stri)
+    ptr = response.content.find(b'available-amount') + 16 + 2
     response = response.content[ptr:]
-    ptr = response.find(b'robux') + 7
-    response = response[ptr:]
     ptr = response.find(b'<')
     response = response[:ptr]
+    response = response.replace(b',', b'')
     response = int(response)
     return response
 
