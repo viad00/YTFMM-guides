@@ -12,7 +12,7 @@
             -->
             <form action="{% url 'buy_robux' %}" method="post" class="buy-form">{% csrf_token %}
                 <label>Купить прямо сейчас!</label>
-                <input min="200" max="20000" onchange="document.getElementById('to-pay').innerHTML = this.value*{{ percent }} + ' руб';" name="value" class="form-control" placeholder="Кол-во robux для покупки" type="number" required>
+                <input min="500" max="20000" onchange="document.getElementById('to-pay').innerHTML = this.value*{{ percent }} + ' руб';" name="value" class="form-control" placeholder="Кол-во robux для покупки" type="number" required>
                 <p>Сумма к оплате:</p><p id="to-pay"></p>
                 <div style="font-size: 14px">Текущая ставка: 1 robux = {{ percent }} руб</div>
                 <label>Выберите группу</label>
