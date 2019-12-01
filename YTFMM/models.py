@@ -18,6 +18,7 @@ class Order(models.Model):
     paid = models.BooleanField(default=False)
     been_success = models.BooleanField(default=False)
     operation_id = models.CharField(max_length=255)
+    group_id=models.IntegerField()
 
 
 class Log(models.Model):
@@ -26,5 +27,6 @@ class Log(models.Model):
 
 class Balance(models.Model):
     name = models.CharField(max_length=20, unique=True)
+    group_id=models.IntegerField(unique=True)
     value = models.IntegerField()
     updated = models.DateTimeField()

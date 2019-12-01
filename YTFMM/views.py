@@ -11,13 +11,20 @@ import math
 import datetime
 import json
 import hmac
-import base64
 
 # Create your views here.
 
 
 def index(request):
-    return render(request, 'index.html', {'title': 'Купить Robux', 'percent': get_setting('percent'), 'balance': balance()})
+    return render(request, 'index.html', {'title': 'Купить Robux',
+                                          'percent': get_setting('percent'),
+                                          'balance': balance_all(),
+                                          'groups': Balance.objects.all()})
+
+
+# TODO: Update balance on call
+def balance_all():
+    return sum(Balance.objects.values_list('value', flat=True))
 
 
 def get_setting(name):
@@ -34,29 +41,41 @@ def buy_robux(request):
     try:
         name = request.POST['name']
         value = request.POST['value']
+        group = request.POST['group']
     except Exception:
         return render(request, 'error.html', {'title': 'Ошибка 400',
                                               'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
-                                              'balance': balance()}, status=400)
-    name_id, is_premium = get_id(name)
+                                              'balance': balance_all()}, status=400)
+    name_id, is_premium = get_id(name, group)
     if name_id < 0:
         return render(request, 'error.html', {'title': 'Ошибка поиска',
                                               'text': 'Никнейм указанный Вами не найден в нашей группе. \
                                                       Для покупки Robux вступите в нашу группу. Внимание: Вы можете вступить максимум в 5 групп.',
-                                              'help_url': s.JOIN_URL,
-                                              'balance': balance()})
-    return render(request, 'buy_robux.html', {'title': 'Выбор метода оплаты', 'username': name, 'userid': name_id, 'value': value, 'form': OrderForm, 'balance': balance()})
+                                              'help_url': s.JOIN_URL.format(group),
+                                              'balance': balance(group)})
+    return render(request, 'buy_robux.html', {'title': 'Выбор метода оплаты',
+                                              'username': name,
+                                              'userid': name_id,
+                                              'value': value,
+                                              'group': group,
+                                              'form': OrderForm,
+                                              'balance': balance(group)})
 
 
 def place_order(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            order = Order(name_id=form.cleaned_data['name_id'], sum_to_get=form.cleaned_data['sum_to_get'], value_to_pay=float(form.cleaned_data['sum_to_get'])*float(get_setting('percent')), payment_type=form.cleaned_data['pay_type'])
-            if balance_status() <= 10000:
+            group = form.cleaned_data['group_id']
+            order = Order(name_id=form.cleaned_data['name_id'],
+                          sum_to_get=form.cleaned_data['sum_to_get'],
+                          value_to_pay=float(form.cleaned_data['sum_to_get'])*float(get_setting('percent')),
+                          payment_type=form.cleaned_data['pay_type'],
+                          group_id=form.cleaned_data['group_id'])
+            if balance_status(group) <= 10000:
                 return render(request, 'error.html', {'title': 'Ошибка сервера',
                                                       'text': 'Извините, РОБУКСЫ закончились. Ожидайте пополнения.',
-                                                      'balance': balance()})
+                                                      'balance': balance(group)})
             if order.payment_type == 'YA':
                 comission_wallet = math.ceil((order.value_to_pay * 0.005 + order.value_to_pay)*100)/100
                 comission_bank = math.ceil((order.value_to_pay / (1-0.02))*100)/100
@@ -68,7 +87,7 @@ def place_order(request):
                                                            'pay_to': pay_to,
                                                            'pay_desc': 'Roblox Mafia: Покупка {} Robux, Заказ №{}'.format(order.sum_to_get, order.id),
                                                            'order_id': order.id,
-                                                           'balance': balance()})
+                                                           'balance': balance(group)})
             if order.payment_type == 'QI':
                 order.save()
                 dat = {
@@ -85,12 +104,12 @@ def place_order(request):
                 }
                 response = requests.put('https://api.qiwi.com/partner/bill/v1/bills/{}'.format(order.id), data=json.dumps(dat), headers=headers)
                 response = json.loads(str(response.content, encoding='UTF-8'))
-                link = response['payUrl'] + '&successUrl=https://robloxmafia.ru/success-payment?order=' + str(order.id)
+                link = response['payUrl'] + '&successUrl=http://localhost:8000/success-payment?order=' + str(order.id)
                 return redirect(link)
         else:
             return render(request, 'error.html', {'title': 'Ошибка 400',
                                                   'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
-                                                  'balance': balance()},
+                                                  'balance': balance_all()},
                           status=400)
     else:
         return redirect('index')
@@ -104,18 +123,18 @@ def success_payment(request):
         except Exception:
             return render(request, 'error.html', {'title': 'Ошибка 400',
                                                   'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
-                                                  'balance': balance()},
+                                                  'balance': balance_all()},
                           status=400)
         if not s.paid:
             check_routine(s)
         if not s.been_success:
             s.been_success = True
             s.save()
-        return render(request, 'success.html', {'title': 'Спасибо за покупку!','balance': balance(),'order':s})
+        return render(request, 'success.html', {'title': 'Спасибо за покупку!','balance': balance_all(),'order':s})
     else:
         return render(request, 'error.html', {'title': 'Ошибка 404',
                                               'text': 'Проверьте правильность адреса и повторите попытку',
-                                              'balance': balance()}, status=404)
+                                              'balance': balance_all()}, status=404)
 
 
 def check_status(request):
@@ -162,10 +181,10 @@ def check_routine(o):
             if o.value_to_pay <= float(response['amount']['value']) and not o.paid:
                 # Log(message='Qiwi duplicate, order_id: {}'.format(o.id)).save()
                 # This is a duplicate (qiwi sends it)
-                result = send(o.name_id, o.sum_to_get)
+                result = send(o.name_id, o.sum_to_get, o.group_id)
                 if result:
                     o.paid = True
-                    ba = Balance.objects.get(name='roblox')
+                    ba = Balance.objects.get(group_id=o.group_id)
                     ba.value -= o.sum_to_get
                     ba.save()
                 else:
@@ -237,10 +256,10 @@ def yandex_callback(request):
             s.operation_id = 'Locked'
             s.save()
             if s.value_to_pay <= float(amount) and not s.paid:
-                result = send(s.name_id, s.sum_to_get)
+                result = send(s.name_id, s.sum_to_get, s.group_id)
                 if result:
                     s.paid = True
-                    ba = Balance.objects.get(name='roblox')
+                    ba = Balance.objects.get(group_id=s.group_id)
                     ba.value -= s.sum_to_get
                     ba.save()
                 else:
@@ -282,10 +301,10 @@ def qiwi_callback(request):
             if s.value_to_pay <= float(string['amount']['value']) and not s.paid:
                 #Log(message='Qiwi duplicate, order_id: {}'.format(s.id)).save()
                 # This is a duplicate (qiwi sends it)
-                result = send(s.name_id, s.sum_to_get)
+                result = send(s.name_id, s.sum_to_get, s.group_id)
                 if result:
                     s.paid = True
-                    ba = Balance.objects.get(name='roblox')
+                    ba = Balance.objects.get(group_id=s.group_id)
                     ba.value -= s.sum_to_get
                     ba.save()
                 else:
@@ -302,8 +321,8 @@ def qiwi_callback(request):
         return HttpResponseForbidden('{"error":"Hashes mismatch"}', content_type='application/json')
 
 
-def send(id, num):
-    url = s.SEND_URL
+def send(id, num, group):
+    url = s.SEND_URL.format(group)
     csrf = requests.get(s.CSRF_URL, cookies=s.COOKIE)
     csrf = csrf.content
     kek = csrf.find(b'Roblox.XsrfToken.setToken(')
@@ -322,8 +341,8 @@ def send(id, num):
         return False
 
 
-def get_id(name):
-    url = s.GROUP_URL.format(name)
+def get_id(name, group):
+    url = s.GROUP_URL.format(group, name)
     cookie = s.COOKIE
     cookie['.ROBLOSECURITY'] = get_setting('robsec')
     response = requests.get(url, cookies=cookie)
@@ -337,8 +356,8 @@ def get_id(name):
     return userid, is_premium
 
 
-def balance_status():
-    url = s.CSRF_URL
+def balance_status(group):
+    url = s.CSRF_URL.format(group)
     response = requests.get(url, cookies=s.COOKIE)
     ptr = response.content.find(b'available-amount') + 16 + 2
     response = response.content[ptr:]
@@ -349,15 +368,15 @@ def balance_status():
     return response
 
 
-def balance():
+def balance(group):
     try:
-        balance_rbx = Balance.objects.get(name='roblox')
+        balance_rbx = Balance.objects.get(group_id=group)
     except Exception:
-        balance_rbx = Balance(name='roblox', updated=timezone.now(), value=balance_status())
+        balance_rbx = Balance(name=group, group_id=group, updated=timezone.now(), value=balance_status(group))
         balance_rbx.save()
     if (balance_rbx.updated + datetime.timedelta(minutes=15)) < timezone.now():
         try:
-            balance_rbx.value = balance_status()
+            balance_rbx.value = balance_status(group)
             balance_rbx.updated = timezone.now()
             balance_rbx.save()
         except Exception:

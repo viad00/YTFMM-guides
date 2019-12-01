@@ -13,6 +13,7 @@
                 {% csrf_token %}
                 <input type="hidden" name="{{ form.name_id.html_name }}" required hidden value="{{ userid }}">
                 <input type="hidden" name="{{ form.sum_to_get.html_name }}" required hidden value="{{ value }}">
+                <input type="hidden" name="{{ form.group_id.html_name }}" required hidden value="{{ group }}">
                 <div class="container">
                     <div class="btn-group-toggle" data-toggle="buttons">
                         <div class="card-deck mb-3 text-center">
