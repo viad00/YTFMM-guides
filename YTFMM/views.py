@@ -31,8 +31,13 @@ def get_setting(name):
     try:
         se = Setting.objects.get(name=name)
     except Setting.DoesNotExist:
-        se = Setting(name=name, value=s.DEFAULT_SETTINGS[name])
-        se.save()
+        if s.DEFAULT_SETTINGS[name]:
+            se = Setting(name=name, value=s.DEFAULT_SETTINGS[name])
+            se.save()
+        else:
+            se = Setting(name=name, value='Change me pls')
+            se.save()
+            Log(message='Create default value for {}'.format(name)).save()
     return se.value
 
 
@@ -323,7 +328,9 @@ def qiwi_callback(request):
 
 def send(id, num, group):
     url = s.SEND_URL.format(group)
-    csrf = requests.get(s.CSRF_URL, cookies=s.COOKIE)
+    cookie = s.COOKIE
+    cookie['.ROBLOSECURITY'] = get_setting('robsec-{}'.format(group))
+    csrf = requests.get(s.CSRF_URL, cookies=cookie)
     csrf = csrf.content
     kek = csrf.find(b'Roblox.XsrfToken.setToken(')
     csrf = csrf[kek+27:]
@@ -332,9 +339,7 @@ def send(id, num, group):
     headers = {
         'X-CSRF-TOKEN': csrf.decode('ascii'),
     }
-    cookie = s.COOKIE
-    cookie['.ROBLOSECURITY'] = get_setting('robsec')
-    response = requests.post(url, headers=headers, data={'percentages': '{"'+str(id)+'": "'+str(num)+'"}'}, cookies=s.COOKIE)
+    response = requests.post(url, headers=headers, data={'percentages': '{"'+str(id)+'": "'+str(num)+'"}'}, cookies=cookie)
     if response.status_code == 200:
         return True
     else:
