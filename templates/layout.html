@@ -1,4 +1,4 @@
-{% load staticfiles %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Магазин Roblox Mafia - Купить Robux">
     <meta name="keywords" content="купить buy robux roblox магазин shop">
+    <script data-ad-client="ca-pub-7069264357910158" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
@@ -26,7 +27,7 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item mx-0 mx-lg-1">
-            <a style="color: lightgreen;" class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="{% url 'index' %}"><span class="icon-robux"></span> {{ balance }}</a>
+            <a style="color: lightgreen;" class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="{% url 'index' %}"><img width="35" height="35" src="{% static 'img/robux-green.png' %}"> {% if balance > 0 %}{{ balance }}{% else %}0{% endif %}</a>
           </li>
             <!-- TODO: CDN Image -->
           <li class="nav-item mx-0 mx-lg-1">

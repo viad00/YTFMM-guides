@@ -39,7 +39,7 @@ hr.star-dark:after {
   top: -.8em;
   display: inline-block;
   padding: 0 0.25em;
-  content: url("https://cdn.discordapp.com/attachments/552947134438309890/552961217170374656/1jh2.png");
+  content: url("/static/img/robux-gold.png");
   font-family: "Font Awesome 5 Free";
   font-weight: 900;
   font-size: 2em;
@@ -387,9 +387,13 @@ a:focus, a:hover, a:active {
 }
 
 .buy-form {
-  max-width: 300px;
   display: inline-block;
   font-size: 24px;
+}
+
+.buy-form > input {
+  max-width: 300px;
+  margin: 0 auto 1em auto;
 }
 
 .btn-outline-danger {
@@ -400,17 +404,6 @@ a:focus, a:hover, a:active {
 .btn-outline-danger:hover {
   background-color: darkgoldenrod;
   border-color: gold;
-}
-
-.icon-robux {
-  background-image: url(https://www.roblox.com/images/Shared/branded_04182018.svg);
-  background-repeat: no-repeat;
-  display: inline-block;
-  vertical-align: middle;
-  background-position: -3px -155px;
-  background-size: 76px auto;
-  width: 35px;
-  height: 35px;
 }
 
 .card-deck .card {
@@ -485,4 +478,32 @@ a:focus, a:hover, a:active {
 
 .btn-qiwi.active:after {
   content: "\2714";
+}
+
+.card-rb {
+  border-color: gray;
+  min-width: 150px !important;
+}
+
+.card-rb-header {
+  background-color: #202020;
+  color: black;
+}
+
+.card-rb-body {
+  background-color: black;
+}
+
+.btn-rb:not(:disabled):not(.disabled).active {
+  background-color: #2F8E00;
+  border-color: #216200;
+  color: black;
+}
+
+.btn-rb:after {
+  content: "Выбрать";
+}
+
+.btn-rb.active:after {
+  content: "Выбрано";
 }

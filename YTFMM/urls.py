@@ -28,5 +28,6 @@ urlpatterns = [
     path('qiwi-callback', views.qiwi_callback, name='qiwi_callback'),
     path('check-status', views.check_status, name='check_status'),
     path('get-avatar', views.get_avatar, name='get_avatar'),
+    path('get-group-image', views.get_group_image, name='get_group_image'),
     path('admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

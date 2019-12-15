@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse, JsonResponse
 from django.conf import settings as s
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.views.decorators.cache import cache_page
 from django.utils import timezone
 from .models import Setting, Order, Log, Balance
 from .forms import OrderForm
@@ -15,6 +16,7 @@ import hmac
 # Create your views here.
 
 
+@cache_page(60 * 15)
 def index(request):
     return render(request, 'index.html', {'title': 'Купить Robux',
                                           'percent': get_setting('percent'),
@@ -22,16 +24,11 @@ def index(request):
                                           'groups': Balance.objects.all()})
 
 
-# TODO: Update balance on call
-def balance_all():
-    return sum(Balance.objects.values_list('value', flat=True))
-
-
 def get_setting(name):
     try:
         se = Setting.objects.get(name=name)
-    except Setting.DoesNotExist:
-        if s.DEFAULT_SETTINGS[name]:
+    except (Setting.DoesNotExist, KeyError):
+        if name in s.DEFAULT_SETTINGS:
             se = Setting(name=name, value=s.DEFAULT_SETTINGS[name])
             se.save()
         else:
@@ -204,6 +201,7 @@ def check_routine(o):
         pass
 
 
+@cache_page(60 * 15)
 def get_avatar(request):
     resp = {
         "url": "",
@@ -222,9 +220,34 @@ def get_avatar(request):
             response = response[1:len(response)-1]
             resp['url'] = json.loads(response)['thumbnailUrl']
             resp['success'] = True
-            return HttpResponse(json.dumps(resp))
+            return JsonResponse(resp)
         except Exception:
-            return HttpResponse(json.dumps(resp))
+            return JsonResponse(resp)
+    else:
+        return HttpResponseBadRequest(json.dumps(resp))
+
+
+@cache_page(60 * 15)
+def get_group_image(request):
+    resp = {
+        "response": "",
+        "success": False
+    }
+    if request.method == 'GET' and 'group_ids' in request.GET:
+        try:
+            group_ids = request.GET['group_ids']
+            url = "https://thumbnails.roblox.com/v1/groups/icons?format=png&groupIds={}&size=150x150".format(
+                group_ids)
+        except Exception:
+            return HttpResponseBadRequest(json.dumps(resp))
+        try:
+            response = requests.get(url)
+            response = str(response.content, encoding='UTF-8')
+            resp['response'] = json.loads(response)
+            resp['success'] = True
+            return JsonResponse(resp)
+        except Exception:
+            return JsonResponse(resp)
     else:
         return HttpResponseBadRequest(json.dumps(resp))
 
@@ -349,7 +372,7 @@ def send(id, num, group):
 def get_id(name, group):
     url = s.GROUP_URL.format(group, name)
     cookie = s.COOKIE
-    cookie['.ROBLOSECURITY'] = get_setting('robsec')
+    cookie['.ROBLOSECURITY'] = get_setting('robsec-{}'.format(group))
     response = requests.get(url, cookies=cookie)
     if response.status_code != 200:
         return -1, False
@@ -363,7 +386,9 @@ def get_id(name, group):
 
 def balance_status(group):
     url = s.CSRF_URL.format(group)
-    response = requests.get(url, cookies=s.COOKIE)
+    cookie = s.COOKIE
+    cookie['.ROBLOSECURITY'] = get_setting('robsec-{}'.format(group))
+    response = requests.get(url, cookies=cookie)
     ptr = response.content.find(b'available-amount') + 16 + 2
     response = response.content[ptr:]
     ptr = response.find(b'<')
@@ -385,5 +410,16 @@ def balance(group):
             balance_rbx.updated = timezone.now()
             balance_rbx.save()
         except Exception:
-            Log(message='Failed to update balance {}'.format(datetime.datetime.now())).save()
+            Log(message='Failed to update balance {} group {}'.format(datetime.datetime.now(), group)).save()
     return balance_rbx.value - 10000
+
+
+def balance_all():
+    try:
+        balance_rbx = Balance.objects.last()
+    except Exception:
+        balance_rbx = Balance(name='NEW', group_id='0', updated=timezone.now(), value=balance_status(0))
+        balance_rbx.save()
+    if (balance_rbx.updated + datetime.timedelta(minutes=15)) < timezone.now():
+        return sum([balance(x) for x in Balance.objects.values_list('group_id', flat=True)])
+    return sum([x - 10000 for x in Balance.objects.values_list('value', flat=True)])
