@@ -28,7 +28,7 @@
                                 <p>Баланс:</p>
                                 <p>{% if group.value > 10000 %}
                                     {{ group.value }}
-                                    {% else %}Нет денег(
+                                    {% else %}0
                                     {% endif %}<img width="28" src="/static/img/robux-white.png"></p>
                                 <label class="btn btn-lg btn-dark btn-rb {% if group.value < 10000 %}disabled{% endif %}">
                                     <input {% if group.value < 10000 %}disabled{% endif %} class="form-control" style="position: absolute; clip: rect(0,0,0,0); pointer-events: none;" type="radio" name="group" value="{{ group.group_id }}" autocomplete="off" {% if forloop.first %}required{% endif %}>
