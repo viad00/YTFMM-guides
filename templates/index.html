@@ -21,7 +21,7 @@
             <!--
             <h1 class="font-weight-light mb-0">Сайт закрыт по техническим причинам до 25 сентября 2019 года. Приносим свои извинения за доставленные неудобства.</h1>
             -->
-            <form action="{% url 'buy_robux' %}" method="post" class="buy-form">{% csrf_token %}
+            <form action="{% url 'buy_robux' %}" method="post" class="buy-form">
                 <label>Купить прямо сейчас!</label>
                 <input min="500" max="20000" onchange="document.getElementById('to-pay').innerHTML = this.value*{{ percent }} + ' руб';" name="value" class="form-control" placeholder="Кол-во robux для покупки" type="number" required>
                 <p>Сумма к оплате:</p><p id="to-pay"></p>

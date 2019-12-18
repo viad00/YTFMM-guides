@@ -38,7 +38,7 @@ def get_setting(name):
     return se.value
 
 
-@csrf_protect
+@csrf_exempt
 def buy_robux(request):
     try:
         name = request.POST['name']
