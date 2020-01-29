@@ -385,16 +385,11 @@ def get_id(name, group):
 
 
 def balance_status(group):
-    url = s.CSRF_URL.format(group)
+    url = 'https://economy.roblox.com/v1/groups/{}/currency'.format(group)
     cookie = s.COOKIE
     cookie['.ROBLOSECURITY'] = get_setting('robsec-{}'.format(group))
     response = requests.get(url, cookies=cookie)
-    ptr = response.content.find(b'available-amount') + 16 + 2
-    response = response.content[ptr:]
-    ptr = response.find(b'<')
-    response = response[:ptr]
-    response = response.replace(b',', b'')
-    response = int(response)
+    response = int(response.json()['robux'])
     return response
 
 
