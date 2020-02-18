@@ -131,8 +131,8 @@ COOKIE = {
 
 GROUP_URL = 'https://users.roblox.com/v1/usernames/users'
 CHECK_URL = 'https://groups.roblox.com/v2/users/{}/groups/roles'
-SEND_URL = 'https://www.roblox.com/groups/{}/one-time-payout/false'
-CSRF_URL = 'https://www.roblox.com/my/groupadmin.aspx?gid={}'
+SEND_URL = 'https://groups.roblox.com/v1/groups/{}/payouts'
+CSRF_URL = 'https://www.roblox.com/groups/configure?id={}'
 JOIN_URL = 'https://www.roblox.com/groups/{}'
 
 DEFAULT_SETTINGS = {

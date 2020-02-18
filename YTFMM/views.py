@@ -362,7 +362,7 @@ def send(id, num, group):
     headers = {
         'X-CSRF-TOKEN': csrf.decode('ascii'),
     }
-    response = requests.post(url, headers=headers, data={'percentages': '{"'+str(id)+'": "'+str(num)+'"}'}, cookies=cookie)
+    response = requests.post(url, headers=headers, json={'PayoutType': "FixedAmount", 'Recipients': [{'recipientId': id, 'recipientType': "User", 'amount': num}]}, cookies=cookie)
     if response.status_code == 200:
         return True
     else:
