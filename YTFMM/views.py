@@ -48,7 +48,7 @@ def buy_robux(request):
         return render(request, 'error.html', {'title': 'Ошибка 400',
                                               'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
                                               'balance': balance_all()}, status=400)
-    name_id, is_premium = get_id(name, group)
+    name_id = get_id(name, group)
     if name_id < 0:
         return render(request, 'error.html', {'title': 'Ошибка поиска',
                                               'text': 'Никнейм указанный Вами не найден в нашей группе. \
@@ -370,18 +370,26 @@ def send(id, num, group):
 
 
 def get_id(name, group):
-    url = s.GROUP_URL.format(group, name)
+    url = s.GROUP_URL
     cookie = s.COOKIE
     cookie['.ROBLOSECURITY'] = get_setting('robsec-{}'.format(group))
+    response = requests.post(url, data={'usernames': [name]}, cookies=cookie)
+    if response.status_code != 200:
+        return -1
+    response = response.json()
+    if len(response['data']) == 0:
+        return -2
+    userid = response['data'][0]['id']
+    url = s.CHECK_URL.format(userid)
     response = requests.get(url, cookies=cookie)
     if response.status_code != 200:
-        return -1, False
-    response = response.json()
-    if len(response) == 0:
-        return -2, False
-    userid = response[0]['UserId']
-    is_premium = response[0]['RoleSet']['Rank'] in s.PREMIUM_ROLES
-    return userid, is_premium
+        return -3
+    response = response.json()['data']
+    response = [str(x['group']['id']) for x in response]
+    if group in response:
+        return userid
+    else:
+        return -4
 
 
 def balance_status(group):
