@@ -27,7 +27,7 @@
                                 <h3>{{ group.name }}</h3>
                                 <p>Баланс:</p>
                                 <p>{% if group.value > 10000 %}
-                                    {{ group.value }}
+                                    {{ group.value|add:"-10000" }}
                                     {% else %}0
                                     {% endif %}<img width="28" src="/static/img/robux-white.png"></p>
                                 <label class="btn btn-lg btn-dark btn-rb {% if group.value < 10000 %}disabled{% endif %}">
