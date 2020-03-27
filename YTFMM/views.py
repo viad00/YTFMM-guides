@@ -106,7 +106,7 @@ def place_order(request):
                 }
                 response = requests.put('https://api.qiwi.com/partner/bill/v1/bills/{}'.format(order.id), data=json.dumps(dat), headers=headers)
                 response = json.loads(str(response.content, encoding='UTF-8'))
-                link = response['payUrl'] + '&successUrl=http://localhost:8000/success-payment?order=' + str(order.id)
+                link = response['payUrl'] + '&successUrl=https://robloxmafia.ru/success-payment?order=' + str(order.id)
                 return redirect(link)
         else:
             return render(request, 'error.html', {'title': 'Ошибка 400',
