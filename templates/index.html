@@ -1,76 +1,69 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <header class="masthead bg-primary text-white text-center">
-        <div class="container">
-            <!-- TODO: CDN Image
-            <img width="200px" height="200px" src="https://cdn.discordapp.com/attachments/552947134438309890/552953052810838067/RM.png">
-            <br><br><br><br> -->
-            <h1 class="text-uppercase mb-0">Купить Robux</h1>
-            <hr class="star-light">
-            <!--
-            <h1 class="font-weight-light mb-0">Сайт закрыт по техническим причинам до 25 сентября 2019 года. Приносим свои извинения за доставленные неудобства.</h1>
-            -->
-            <form action="{% url 'buy_robux' %}" method="post" class="buy-form">
-                <label>Купить прямо сейчас!</label>
-                <input min="500" max="20000" onchange="document.getElementById('to-pay').innerHTML = this.value*{{ percent }} + ' руб';" name="value" class="form-control" placeholder="Кол-во robux для покупки" type="number" required>
-                <p>Сумма к оплате:</p><p id="to-pay"></p>
-                <div style="font-size: 14px">Текущая ставка: 1 robux = {{ percent }} руб</div>
-                <label>Выберите группу</label>
-            <div class="btn-group-toggle" data-toggle="buttons">
-                <div class="card-deck mb-3 text-center">
-                    {% for group in groups %}
-                        <div class="card mb-4 shadow-sm card-rb">
-                            <div class="card-header card-rb-header">
-                                <img id="{{ group.group_id }}-img" style="width: 70px" alt="{{ group.name }} image" src="https://static.rbxcdn.com/images/spinners/spinner16x16.gif">
-                            </div>
-                            <div class="card-body card-rb-body">
-                                <h3>{{ group.name }}</h3>
-                                <p>Баланс:</p>
-                                <p>{% if group.value > 10000 %}
-                                    {{ group.value|add:"-10000" }}
-                                    {% else %}0
-                                    {% endif %}<img width="28" src="/static/img/robux-white.png"></p>
-                                <label class="btn btn-lg btn-dark btn-rb {% if group.value < 10000 %}disabled{% endif %}">
-                                    <input {% if group.value < 10000 %}disabled{% endif %} class="form-control" style="position: absolute; clip: rect(0,0,0,0); pointer-events: none;" type="radio" name="group" value="{{ group.group_id }}" autocomplete="off" {% if forloop.first %}required{% endif %}>
-                                </label>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <p style="font-size: 12px">Вы должны вступить в выбранную группу перед переводом</p>
-                <label>Ваш ник в Roblox</label>
-                <input name="name" class="form-control" placeholder="Введите ник" type="text" required>
-                <hr>
-                <button type="submit" class="btn btn-outline-danger btn-xl">Купить!</button>
-            </form>
-            <hr class="star-light">
-            <h2 class="font-weight-light mb-0">Магазин Roblox Mafia - Покупать Robux дёшево и просто!</h2>
-        </div>
-    </header>
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">Гайды от Крутого Папы</h1>
+        <p class="lead">Здесь вы можете купить гайды от Крутого Папы.
+            Нужно еще что-то написать, а то не солидно смотрится</p>
+    </div>
+    <div class="container">
+  <div class="card-deck mb-3 text-center">
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header">
+        <h4 class="my-0 font-weight-normal">Free</h4>
+      </div>
+        <img style="max-width: 6rem; align-self: center; margin-top: 5px;" class="card-img-top" src="https://www.pngmart.com/files/7/Guide-Transparent-Background.png">
+      <div class="card-body">
+        <ul class="list-unstyled mt-3 mb-4">
+          <li>Крутой гайд</li>
+          <li>Научись хоть чему-то</li>
+          <li>Сплошные преимущества</li>
+        </ul>
+          <h1 class="card-title pricing-card-title">0 ₽</h1>
+        <a href="/show-guide?id=0" type="button" class="btn btn-lg btn-block btn-outline-primary">Заинтересовало?</a>
+      </div>
+    </div>
+    </div>
+  </div>
+<!-- Legal stuff TODO
+  <footer class="pt-4 my-md-5 pt-md-5 border-top">
+    <div class="row">
+      <div class="col-12 col-md">
+        <img class="mb-2" src="/docs/4.5/assets/brand/bootstrap-solid.svg" alt="" width="24" height="24">
+        <small class="d-block mb-3 text-muted">© 2017-2020</small>
+      </div>
+      <div class="col-6 col-md">
+        <h5>Features</h5>
+        <ul class="list-unstyled text-small">
+          <li><a class="text-muted" href="#">Cool stuff</a></li>
+          <li><a class="text-muted" href="#">Random feature</a></li>
+          <li><a class="text-muted" href="#">Team feature</a></li>
+          <li><a class="text-muted" href="#">Stuff for developers</a></li>
+          <li><a class="text-muted" href="#">Another one</a></li>
+          <li><a class="text-muted" href="#">Last time</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-md">
+        <h5>Resources</h5>
+        <ul class="list-unstyled text-small">
+          <li><a class="text-muted" href="#">Resource</a></li>
+          <li><a class="text-muted" href="#">Resource name</a></li>
+          <li><a class="text-muted" href="#">Another resource</a></li>
+          <li><a class="text-muted" href="#">Final resource</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-md">
+        <h5>About</h5>
+        <ul class="list-unstyled text-small">
+          <li><a class="text-muted" href="#">Team</a></li>
+          <li><a class="text-muted" href="#">Locations</a></li>
+          <li><a class="text-muted" href="#">Privacy</a></li>
+          <li><a class="text-muted" href="#">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+</div>
+-->
 {% endblock %}
 {% block scripts %}
-    <script type="application/javascript">
-        function ready() {
-            $.ajax({
-                dataType: 'json',
-                url: "{% url 'get_group_image' %}",
-                data: {
-                    group_ids: '{% for group in groups %}{{ group.group_id }}{% if not forloop.last %},{% endif %}{% endfor %}'
-                },
-                success: function(result){
-                    var group_ids = [{% for group in groups %}{{ group.group_id }}{% if not forloop.last %},{% endif %}{% endfor %}];
-                    if (result.success) {
-                        for (var i = 0; i < group_ids.length; i++) {
-                            $('#'+result.response.data[i].targetId+'-img').attr("src", result.response.data[i].imageUrl);
-                        }
-                        $('#avatar').attr("src", result.url);
-                    } else {
-                        $('#avatar').hide();
-                    }
-                }
-            });
-        }
-        document.addEventListener("DOMContentLoaded", ready);
-    </script>
 {% endblock %}

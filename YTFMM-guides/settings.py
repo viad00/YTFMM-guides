@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'YTFMM.apps.AppConfig',
+    'YTFMM-guides.apps.AppConfig',
 ]
 
 MIDDLEWARE = [
@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'YTFMM.urls'
+ROOT_URLCONF = 'YTFMM-guides.urls'
 
 TEMPLATES = [
     {
@@ -69,7 +69,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'YTFMM.wsgi.application'
+WSGI_APPLICATION = 'YTFMM-guides.wsgi.application'
 
 
 # Database
@@ -125,19 +125,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-COOKIE = {
-    '.ROBLOSECURITY': '_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_CB80C5A876329A0FD3198365986FCB8382CB12A7E5B3EA33783AC674D8EA9087A32E559A0F41460C6DCBF7C46730D5531C943BDA24AB1DC64A8151DB398556ABF241E163A46A54FEE3FB3ECC0E41FD4C40ACF5489B8A6B6B322EAA599275757D713068035E8FAE8EE37BB4FEB664585F7767CD661DA4387814306DF1ED77706E6E741ED85C153C78CB7F84420D7B10AB2DD3B32C5BEF09D6F0BDFD1B165316AF5FA236AD22FBC5DF40415C5425AF0FF3E4BE6F383C2B3A84BC0B3BDDB8221A7A435E08A700CEDCC238D3925BFC28409F47C96B7FD345D54F09678913AAFE1367CA765D3775DE7B1A59623D1C4552A4B2A375DA9C40669E400FFD0289DCC74112E909C9FB07B45B0C6952CD16EB10678C09EC87BF75E68326C729A2E416C8D0A1586985F5',
-}
-
-GROUP_URL = 'https://users.roblox.com/v1/usernames/users'
-CHECK_URL = 'https://groups.roblox.com/v2/users/{}/groups/roles'
-SEND_URL = 'https://groups.roblox.com/v1/groups/{}/payouts'
-CSRF_URL = 'https://www.roblox.com/groups/configure?id={}'
-JOIN_URL = 'https://www.roblox.com/groups/{}'
-
 DEFAULT_SETTINGS = {
-    'percent': 0.5,
-    'robsec': COOKIE['.ROBLOSECURITY'],
     'yandex_wallet': 410011214967721,
     'yandex_secret': 'TXCJafbP8AkUhnPvaxuEyZk/',
     'qiwi_pubkey': '2S7mpWSvB93qSAr7uYNu2Vvnd2pTVzxEviw6chKKbG9xyy9pcxcvrmne6c6m7cUabcbN8Gnkjk77SEeN2YVBiZaB91BCr7Gh9xNJ2h8avzHhf54BLcm5H5rekRAph94GF3LPMmYk38hZApWMDCS4SbqcB9oqYTBq1ZjRtv8qzSjGgHBtyiBAK99mmZQ6hR336Migc4Nd1b4eePqGTubtNBTzQoCcQSgXuR',

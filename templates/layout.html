@@ -7,61 +7,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Магазин Roblox Mafia - Купить Robux">
     <meta name="keywords" content="купить buy robux roblox магазин shop">
-    <script data-ad-client="ca-pub-4667288688159404" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
-    <link href="{% static 'vendor/magnific-popup/magnific-popup.css' %}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link href="{% static 'css/robloxmafia.css' %}" rel="stylesheet">
 </head>
-<body>
-  <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg bg-secondary fixed-top text-uppercase navbar-shrink" id="mainNav">
-    <div class="container">
-      <a class="navbar-brand" href="{% url 'index' %}">Roblox Mafia <img width="35px" height="35px" src="https://cdn.discordapp.com/attachments/552947134438309890/552953113598885914/RM2.png"></a>
-      <button class="navbar-toggler navbar-toggler-right text-uppercase bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        Меню
-        <i class="fas fa-bars"></i>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarResponsive">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item mx-0 mx-lg-1">
-            <a style="color: lightgreen;" class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="{% url 'index' %}"><img width="35" height="35" src="{% static 'img/robux-green.png' %}"> {% if balance > 0 %}{{ balance }}{% else %}0{% endif %}</a>
-          </li>
-            <!-- TODO: CDN Image -->
-          <li class="nav-item mx-0 mx-lg-1">
-            <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="https://discordapp.com/invite/G7Rk9vm">Связаться с нами <img width="35px" height="35px" src="https://discordapp.com/assets/f8389ca1a741a115313bede9ac02e2c0.svg"></a>
-          </li>
-            <!--
-          <li class="nav-item mx-0 mx-lg-1">
-            <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#contact">Contact</a>
-          </li>
-          -->
-        </ul>
-      </div>
+<body class="text-center">
+<div class="cover-container d-flex w-100 p-3 mx-auto flex-column">
+<header class="masthead mb-auto">
+    <div class="inner">
+      <h3 class="masthead-brand">Крутой Папа</h3>
+        <!--
+      <nav class="nav nav-masthead justify-content-center">
+        <a class="nav-link active" href="#">Home</a>
+        <a class="nav-link" href="#">Features</a>
+        <a class="nav-link" href="#">Contact</a>
+        -->
+      </nav>
     </div>
-  </nav>
-{% block content %}
+  </header>
+    {% block content %}
+</div>
 {% endblock %}
-  <div class="container text-center">
-  </div>
-  <!-- Bootstrap core JavaScript -->
-  <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
-  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-
-  <!-- Plugin JavaScript -->
-  <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
-  <script src="{% static 'vendor/magnific-popup/jquery.magnific-popup.min.js' %}"></script>
-
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-135923271-1"></script>
-  <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-135923271-1');
-  </script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 {% block scripts %}
 {% endblock %}
 </body>

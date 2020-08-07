@@ -21,13 +21,12 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('buy-robux', views.buy_robux, name='buy_robux'),
+    path('show-guide', views.show_guide, name='show_guide'),
+    path('buy-guide', views.buy_guide, name='buy_guide'),
     path('place-order', views.place_order, name='place_order'),
     path('success-payment', views.success_payment, name='success_payment'),
     path('yandex-callback', views.yandex_callback, name='yandex_callback'),
     path('qiwi-callback', views.qiwi_callback, name='qiwi_callback'),
     path('check-status', views.check_status, name='check_status'),
-    path('get-avatar', views.get_avatar, name='get_avatar'),
-    path('get-group-image', views.get_group_image, name='get_group_image'),
     path('admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

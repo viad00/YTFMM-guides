@@ -4,8 +4,7 @@ from django.conf import settings as s
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.views.decorators.cache import cache_page
 from django.utils import timezone
-from .models import Setting, Order, Log, Balance
-from .forms import OrderForm
+from .models import Setting, Order, Log
 import requests
 import hashlib
 import math
@@ -20,8 +19,7 @@ import hmac
 def index(request):
     return render(request, 'index.html', {'title': 'Купить Robux',
                                           'percent': get_setting('percent'),
-                                          'balance': balance_all(),
-                                          'groups': Balance.objects.all()})
+                                          })
 
 
 def get_setting(name):
@@ -38,8 +36,20 @@ def get_setting(name):
     return se.value
 
 
+def show_guide(request):
+    try:
+        id = int(request.GET['id'])
+        guide = Guide.objects.get(id=id)
+    except Exception:
+        return render(request, 'error.html', {'title': 'Ошибка 404',
+                                              'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
+                                              },
+                      status=404)
+    return HttpResponse("hello")
+
+
 @csrf_exempt
-def buy_robux(request):
+def buy_guide(request):
     try:
         name = request.POST['name']
         value = request.POST['value']
@@ -47,21 +57,11 @@ def buy_robux(request):
     except Exception:
         return render(request, 'error.html', {'title': 'Ошибка 400',
                                               'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
-                                              'balance': balance_all()}, status=400)
-    name_id = get_id(name, group)
-    if name_id < 0:
-        return render(request, 'error.html', {'title': 'Ошибка поиска',
-                                              'text': 'Никнейм указанный Вами не найден в нашей группе. \
-                                                      Для покупки Robux вступите в нашу группу. Внимание: Вы можете вступить максимум в 5 групп.',
-                                              'help_url': s.JOIN_URL.format(group),
-                                              'balance': balance(group)})
+                                              }, status=400)
     return render(request, 'buy_robux.html', {'title': 'Выбор метода оплаты',
                                               'username': name,
-                                              'userid': name_id,
                                               'value': value,
-                                              'group': group,
-                                              'form': OrderForm,
-                                              'balance': balance(group)})
+                                              'group': group,})
 
 
 def place_order(request):
@@ -120,7 +120,7 @@ def place_order(request):
 def success_payment(request):
     if request.method == 'GET' and 'order' in request.GET:
         try:
-            order_id = int(request.GET['order'])
+            order_id = request.GET['order']
             s = Order.objects.get(id=order_id)
         except Exception:
             return render(request, 'error.html', {'title': 'Ошибка 400',
@@ -199,57 +199,6 @@ def check_routine(o):
             o.save()
     except Exception:
         pass
-
-
-@cache_page(60 * 15)
-def get_avatar(request):
-    resp = {
-        "url": "",
-        "success": False
-    }
-    if request.method == 'GET' and 'user_id' in request.GET:
-        try:
-            user_id = int(request.GET['user_id'])
-            url = "https://www.roblox.com/avatar-thumbnails?params=%5B%7B%22imageSize%22%3A%22medium%22%2C%22noClick%22%3Afalse%2C%22noOverlays%22%3Afalse%2C%22userId%22%3A%22{}%22%2C%22userOutfitId%22%3A0%2C%22name%22%3A%22%22%7D%5D".format(
-                user_id)
-        except Exception:
-            return HttpResponseBadRequest(json.dumps(resp))
-        try:
-            response = requests.get(url)
-            response = str(response.content, encoding='UTF-8')
-            response = response[1:len(response)-1]
-            resp['url'] = json.loads(response)['thumbnailUrl']
-            resp['success'] = True
-            return JsonResponse(resp)
-        except Exception:
-            return JsonResponse(resp)
-    else:
-        return HttpResponseBadRequest(json.dumps(resp))
-
-
-@cache_page(60 * 15)
-def get_group_image(request):
-    resp = {
-        "response": "",
-        "success": False
-    }
-    if request.method == 'GET' and 'group_ids' in request.GET:
-        try:
-            group_ids = request.GET['group_ids']
-            url = "https://thumbnails.roblox.com/v1/groups/icons?format=png&groupIds={}&size=150x150".format(
-                group_ids)
-        except Exception:
-            return HttpResponseBadRequest(json.dumps(resp))
-        try:
-            response = requests.get(url)
-            response = str(response.content, encoding='UTF-8')
-            resp['response'] = json.loads(response)
-            resp['success'] = True
-            return JsonResponse(resp)
-        except Exception:
-            return JsonResponse(resp)
-    else:
-        return HttpResponseBadRequest(json.dumps(resp))
 
 
 @csrf_exempt
@@ -350,79 +299,4 @@ def qiwi_callback(request):
 
 
 def send(id, num, group):
-    url = s.SEND_URL.format(group)
-    cookie = s.COOKIE
-    cookie['.ROBLOSECURITY'] = get_setting('robsec-{}'.format(group))
-    csrf = requests.get(s.CSRF_URL, cookies=cookie)
-    csrf = csrf.content
-    kek = csrf.find(b'Roblox.XsrfToken.setToken(')
-    csrf = csrf[kek+27:]
-    kek = csrf.find(b'\'')
-    csrf = csrf[:kek]
-    headers = {
-        'X-CSRF-TOKEN': csrf.decode('ascii'),
-    }
-    response = requests.post(url, headers=headers, json={'PayoutType': "FixedAmount", 'Recipients': [{'recipientId': id, 'recipientType': "User", 'amount': num}]}, cookies=cookie)
-    if response.status_code == 200:
-        return True
-    else:
-        return False
-
-
-def get_id(name, group):
-    url = s.GROUP_URL
-    cookie = s.COOKIE
-    cookie['.ROBLOSECURITY'] = get_setting('robsec-{}'.format(group))
-    response = requests.post(url, data={'usernames': [name]}, cookies=cookie)
-    if response.status_code != 200:
-        return -1
-    response = response.json()
-    if len(response['data']) == 0:
-        return -2
-    userid = response['data'][0]['id']
-    url = s.CHECK_URL.format(userid)
-    response = requests.get(url, cookies=cookie)
-    if response.status_code != 200:
-        return -3
-    response = response.json()['data']
-    response = [str(x['group']['id']) for x in response]
-    if group in response:
-        return userid
-    else:
-        return -4
-
-
-def balance_status(group):
-    url = 'https://economy.roblox.com/v1/groups/{}/currency'.format(group)
-    cookie = s.COOKIE
-    cookie['.ROBLOSECURITY'] = get_setting('robsec-{}'.format(group))
-    response = requests.get(url, cookies=cookie)
-    response = int(response.json()['robux'])
-    return response
-
-
-def balance(group):
-    try:
-        balance_rbx = Balance.objects.get(group_id=group)
-    except Exception:
-        balance_rbx = Balance(name=group, group_id=group, updated=timezone.now(), value=balance_status(group))
-        balance_rbx.save()
-    if (balance_rbx.updated + datetime.timedelta(minutes=15)) < timezone.now():
-        try:
-            balance_rbx.value = balance_status(group)
-            balance_rbx.updated = timezone.now()
-            balance_rbx.save()
-        except Exception:
-            Log(message='Failed to update balance {} group {}'.format(datetime.datetime.now(), group)).save()
-    return balance_rbx.value - 10000
-
-
-def balance_all():
-    try:
-        balance_rbx = Balance.objects.last()
-    except Exception:
-        balance_rbx = Balance(name='NEW', group_id='0', updated=timezone.now(), value=balance_status(0))
-        balance_rbx.save()
-    if (balance_rbx.updated + datetime.timedelta(minutes=15)) < timezone.now():
-        return sum([balance(x) for x in Balance.objects.values_list('group_id', flat=True)])
-    return sum([x - 10000 for x in Balance.objects.values_list('value', flat=True)])
+    pass

@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings as s
+import uuid
 
 # Create your models here.
 
@@ -10,6 +11,7 @@ class Setting(models.Model):
 
 
 class Order(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name_id = models.PositiveIntegerField()
     value_to_pay = models.FloatField()
     sum_to_get = models.IntegerField()
@@ -23,10 +25,3 @@ class Order(models.Model):
 
 class Log(models.Model):
     message = models.CharField(max_length=255)
-
-
-class Balance(models.Model):
-    name = models.CharField(max_length=20, unique=True)
-    group_id=models.IntegerField(unique=True)
-    value = models.IntegerField()
-    updated = models.DateTimeField()

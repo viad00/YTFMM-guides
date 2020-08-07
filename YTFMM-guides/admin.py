@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Order, Setting, Log, Balance
+from .models import Order, Setting, Log
 
 # Register your models here.
 
@@ -23,10 +23,3 @@ class LogAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Log, LogAdmin)
-
-
-class BalanceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'value', 'updated')
-
-
-admin.site.register(Balance, BalanceAdmin)
