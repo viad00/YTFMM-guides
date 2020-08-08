@@ -126,6 +126,11 @@ body {
     border-color: #fff;
 }
 
+.div-list-unstyled > ul {
+  padding-left: 0;
+  list-style: none;
+}
+
 /* from roblox */
 .buy-form {
   display: inline-block;

@@ -7,21 +7,19 @@
     </div>
     <div class="container">
   <div class="card-deck mb-3 text-center">
+      {% for guide in guides %}
     <div class="card mb-4 shadow-sm">
       <div class="card-header">
-        <h4 class="my-0 font-weight-normal">Free</h4>
+        <h4 class="my-0 font-weight-normal">{{ guide.name }}</h4>
       </div>
-        <img style="max-width: 6rem; align-self: center; margin-top: 5px;" class="card-img-top" src="https://www.pngmart.com/files/7/Guide-Transparent-Background.png">
+        <img style="align-self: center;" class="card-img-top" src="{{ guide.img.url }}">
       <div class="card-body">
-        <ul class="list-unstyled mt-3 mb-4">
-          <li>Крутой гайд</li>
-          <li>Научись хоть чему-то</li>
-          <li>Сплошные преимущества</li>
-        </ul>
-          <h1 class="card-title pricing-card-title">0 ₽</h1>
-        <a href="/show-guide?id=0" type="button" class="btn btn-lg btn-block btn-outline-primary">Заинтересовало?</a>
+          <div class="div-list-unstyled">{{ guide.abstract|safe }}</div>
+          <h1 class="card-title pricing-card-title">{{ guide.price }} ₽</h1>
+        <a href="/show-guide?id={{ guide.id }}" type="button" class="btn btn-lg btn-block btn-outline-primary">Заинтересовало?</a>
       </div>
     </div>
+      {% endfor %}
     </div>
   </div>
 <!-- Legal stuff TODO

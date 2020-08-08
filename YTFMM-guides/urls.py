@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.urls import include
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views
@@ -28,5 +29,10 @@ urlpatterns = [
     path('yandex-callback', views.yandex_callback, name='yandex_callback'),
     path('qiwi-callback', views.qiwi_callback, name='qiwi_callback'),
     path('check-status', views.check_status, name='check_status'),
+    path('summernote/', include('django_summernote.urls')),
     path('admin/', admin.site.urls),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
+                   + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

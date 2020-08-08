@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Order, Setting, Log
+from django_summernote.admin import SummernoteModelAdmin
+from .models import Order, Setting, Log, Guide
 
 # Register your models here.
 
@@ -9,6 +10,14 @@ class SettingAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Setting, SettingAdmin)
+
+
+class GuideAdmin(SummernoteModelAdmin):
+    list_display = ('name','price')
+    summernote_fields = ('abstract', 'text')
+
+
+admin.site.register(Guide, GuideAdmin)
 
 
 class OrderAdmin(admin.ModelAdmin):

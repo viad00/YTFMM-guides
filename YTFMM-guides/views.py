@@ -4,7 +4,7 @@ from django.conf import settings as s
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.views.decorators.cache import cache_page
 from django.utils import timezone
-from .models import Setting, Order, Log
+from .models import Setting, Order, Log, Guide
 import requests
 import hashlib
 import math
@@ -17,9 +17,8 @@ import hmac
 
 @cache_page(60 * 15)
 def index(request):
-    return render(request, 'index.html', {'title': 'Купить Robux',
-                                          'percent': get_setting('percent'),
-                                          })
+    return render(request, 'index.html', {'title': 'Гайды от Крутого Папы',
+                                          'guides': Guide.objects.all()})
 
 
 def get_setting(name):
@@ -45,7 +44,8 @@ def show_guide(request):
                                               'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
                                               },
                       status=404)
-    return HttpResponse("hello")
+    return render(request, 'guide.html', {'title': guide.name + ' - Крутой Папа',
+                                          'guide': guide})
 
 
 @csrf_exempt

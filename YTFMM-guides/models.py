@@ -7,7 +7,15 @@ import uuid
 
 class Setting(models.Model):
     name=models.CharField(max_length=50, unique=True)
-    value=models.TextField(max_length=2000)
+    value=models.TextField()
+
+
+class Guide(models.Model):
+    name=models.CharField(max_length=200, unique=True)
+    img=models.ImageField()
+    abstract=models.TextField()
+    text=models.TextField()
+    price=models.PositiveIntegerField()
 
 
 class Order(models.Model):
