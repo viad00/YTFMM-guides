@@ -14,7 +14,7 @@ admin.site.register(Setting, SettingAdmin)
 
 class GuideAdmin(SummernoteModelAdmin):
     list_display = ('name','price')
-    summernote_fields = ('abstract', 'text')
+    summernote_fields = ('abstract', 'text', 'paid')
 
 
 admin.site.register(Guide, GuideAdmin)
