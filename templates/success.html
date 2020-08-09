@@ -1,44 +1,31 @@
 {% extends 'layout.html' %}
 {% load l10n %}
 {% block content %}
-    <header class="masthead bg-primary text-white text-center">
-        <div class="container">
+<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
             <h1 class="text-uppercase mb-0">Спасибо за покупку!</h1>
-            <hr class="star-light">
-            <h2 id="status">Включите JavaScript для получения информации о платеже</h2>
-            <p>Отлично! Ваши robux будут зачислины в ближайшее время.
+    <div id="hide1">
+    <br>
+    <div class="alert alert-danger" role="alert">Никуда не уходите с этой страницы, иначе вы можете потерять доступ к гайду.</div>
+    <br>
+        </div>
+            <h2 id="status">Включите JavaScript для получения информации о платеже и отображения гайда.</h2>
+    <div id="guide"></div>
+            <p id="hide2">Отлично! Ваш гайд появится на этой странице в ближайшее время.
                 Если этого не происходит, то это повод обратиться к нам,
                 однако это может произойти из-за задержки платёжных систем.
                 В любом случае, если у вас возникают вопросы по поводу
                 зачисления, обращайтесь к нам.
             </p>
         </div>
-    </header>
 {% endblock %}
 {% block scripts %}
     <script>
-        function confirm() {
-            gtag('event', 'purchase', {
-                "transaction_id": "{{ order.id }}",
-                "affiliation": "Roblox Mafia",
-                "value": {{ order.value_to_pay|unlocalize }},
-                "currency": "RUB",
-                "items": [
-                    {
-                        "id": "1",
-                        "name": "Roblox",
-                        "quantity": {{ order.sum_to_get }},
-                        "price": '0.5'
-                    }
-                    ]
-            });
-        }
         var final = false;
         function checkStatus() {
             $.ajax({
                 url: "{% url 'check_status' %}",
                 data: {
-                    order: {{ order.id }}
+                    order: "{{ order.id }}"
                 },
                 dataType: 'json',
                 success: function( result ) {
@@ -46,7 +33,12 @@
                     stat.text(result.status);
                     stat.attr('style', 'color: '+result.color+';');
                     final = result.final;
-                    if (result.color === 'green') confirm();
+                    $("#hide1").hide()
+                    $("#hide2").hide()
+                    if (result.guide) {
+                        $("#guide").append(result.guide)
+                    }
+                    //if (result.color === 'green') confirm();
                 }
             });
         }

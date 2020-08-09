@@ -125,16 +125,17 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 SUMMERNOTE_THEME = 'bs4'
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "assets"),
 ]
 
 DEFAULT_SETTINGS = {
     'yandex_wallet': 410011214967721,
     'yandex_secret': 'TXCJafbP8AkUhnPvaxuEyZk/',
-    'qiwi_pubkey': '2S7mpWSvB93qSAr7uYNu2Vvnd2pTVzxEviw6chKKbG9xyy9pcxcvrmne6c6m7cUabcbN8Gnkjk77SEeN2YVBiZaB91BCr7Gh9xNJ2h8avzHhf54BLcm5H5rekRAph94GF3LPMmYk38hZApWMDCS4SbqcB9oqYTBq1ZjRtv8qzSjGgHBtyiBAK99mmZQ6hR336Migc4Nd1b4eePqGTubtNBTzQoCcQSgXuR',
-    'qiwi_seckey': 'eyJ2ZXJzaW9uIjoiUDJQIiwiZGF0YSI6eyJwYXlpbl9tZXJjaGFudF9zaXRlX3VpZCI6IjZiZjg5YmVhLWVjOWQtNDNlZC1iY2EzLThmMzA4ODJkYjM1OCIsInVzZXJfaWQiOiI3OTUwMDAzMjEwNCIsInNlY3JldCI6ImJjYTY3MjI3Mzc2ZDU2NzE4MmIzYWZjMjM3MmFjMjkxNWFlMTNlNDQ5Njk0NDkzMzJjNDZiYmM5YzhjMzFmYmEifX0=',
+    'qiwi_pubkey': '2S7mpWSvB93qSAr7uYNu2Vvnd2pTVzxEviw6chKKbG9xyy9pcxcvrmne6c6m7cUabcbN8Gnkjk77SEeN2YVBiZaB91BCr7Gh9xNJ2h8avzHhf54BLcm5H5rekRAph94GF3LPMmYk38hZApWMDCS4SbqcB9oqYTBq1ZjRtv8qzSjGgHunBSZDqsuzbznYTx7MaoJnXPcpidnyC8TCzZ1jEwcsrRvdHtmfXx',
+    'qiwi_seckey': 'eyJ2ZXJzaW9uIjoiUDJQIiwiZGF0YSI6eyJwYXlpbl9tZXJjaGFudF9zaXRlX3VpZCI6IjZiZjg5YmVhLWVjOWQtNDNlZC1iY2EzLThmMzA4ODJkYjM1OCIsInVzZXJfaWQiOiI3OTUwMDAzMjEwNCIsInNlY3JldCI6IjMzZTFkYzQwMDdjMDQyMGE2NGY0MjgyOWI3NmFhMTc4MzAxN2UxM2ZlNGYyZGU2YmZhZjc2YTIwNjY3ZTdjODQifX0=',
 }
 
 PAY_CHOICES = (

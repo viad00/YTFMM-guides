@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.views.decorators.cache import cache_page
 from django.utils import timezone
 from .models import Setting, Order, Log, Guide
+from .forms import OrderForm
 import requests
 import hashlib
 import math
@@ -17,7 +18,7 @@ import hmac
 
 @cache_page(60 * 15)
 def index(request):
-    return render(request, 'index.html', {'title': 'Гайды от Крутого Папы',
+    return render(request, 'index.html', {'title': 'Гайды',
                                           'guides': Guide.objects.all()})
 
 
@@ -44,40 +45,38 @@ def show_guide(request):
                                               'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
                                               },
                       status=404)
-    return render(request, 'guide.html', {'title': guide.name + ' - Крутой Папа',
-                                          'guide': guide})
+    return render(request, 'guide.html', {'title': guide.name,
+                                          'guide': guide,})
 
 
 @csrf_exempt
 def buy_guide(request):
     try:
-        name = request.POST['name']
-        value = request.POST['value']
-        group = request.POST['group']
+        id = int(request.GET['id'])
+        guide = Guide.objects.get(id=id)
     except Exception:
         return render(request, 'error.html', {'title': 'Ошибка 400',
                                               'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
                                               }, status=400)
-    return render(request, 'buy_robux.html', {'title': 'Выбор метода оплаты',
-                                              'username': name,
-                                              'value': value,
-                                              'group': group,})
+    return render(request, 'buy_guide.html', {'title': 'Выбор метода оплаты',
+                                              'guide': guide,
+                                              'form': OrderForm})
 
 
 def place_order(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            group = form.cleaned_data['group_id']
-            order = Order(name_id=form.cleaned_data['name_id'],
-                          sum_to_get=form.cleaned_data['sum_to_get'],
-                          value_to_pay=float(form.cleaned_data['sum_to_get'])*float(get_setting('percent')),
-                          payment_type=form.cleaned_data['pay_type'],
-                          group_id=form.cleaned_data['group_id'])
-            if balance_status(group) <= 10000:
-                return render(request, 'error.html', {'title': 'Ошибка сервера',
-                                                      'text': 'Извините, РОБУКСЫ закончились. Ожидайте пополнения.',
-                                                      'balance': balance(group)})
+            try:
+                id = form.cleaned_data['guide_id']
+                guide = Guide.objects.get(id=id)
+            except Exception:
+                return render(request, 'error.html', {'title': 'Ошибка 404',
+                                                      'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
+                                                      }, status=404)
+            order = Order(guide=guide,
+                          value_to_pay=guide.price,
+                          payment_type=form.cleaned_data['pay_type'])
             if order.payment_type == 'YA':
                 comission_wallet = math.ceil((order.value_to_pay * 0.005 + order.value_to_pay)*100)/100
                 comission_bank = math.ceil((order.value_to_pay / (1-0.02))*100)/100
@@ -87,9 +86,8 @@ def place_order(request):
                                                            'wallet': comission_wallet,
                                                            'bank': comission_bank,
                                                            'pay_to': pay_to,
-                                                           'pay_desc': 'Roblox Mafia: Покупка {} Robux, Заказ №{}'.format(order.sum_to_get, order.id),
-                                                           'order_id': order.id,
-                                                           'balance': balance(group)})
+                                                           'pay_desc': "Гайды от Крутого Папы: Покупка гайда {}, Заказ №{}".format(order.guide.name, order.id),
+                                                           'order_id': order.id})
             if order.payment_type == 'QI':
                 order.save()
                 dat = {
@@ -97,7 +95,7 @@ def place_order(request):
                         "currency": "RUB",
                         "value": '{0:0.2f}'.format(math.ceil(order.value_to_pay*100)/100)
                     },
-                    "comment": "Roblox Mafia: Покупка {} Robux, Заказ №{}".format(order.sum_to_get, order.id),
+                    "comment": "Гайды от Крутого Папы: Покупка гайда {}, Заказ №{}".format(order.guide.name, order.id),
                     "expirationDateTime": (datetime.datetime.now().replace(microsecond=0)+datetime.timedelta(days=2)).isoformat()+'+03:00'
                 }
                 headers = {
@@ -106,12 +104,11 @@ def place_order(request):
                 }
                 response = requests.put('https://api.qiwi.com/partner/bill/v1/bills/{}'.format(order.id), data=json.dumps(dat), headers=headers)
                 response = json.loads(str(response.content, encoding='UTF-8'))
-                link = response['payUrl'] + '&successUrl=https://robloxmafia.ru/success-payment?order=' + str(order.id)
+                link = response['payUrl'] + '&successUrl=https://guides.robloxmafia.ru/success-payment?order=' + str(order.id)
                 return redirect(link)
         else:
             return render(request, 'error.html', {'title': 'Ошибка 400',
-                                                  'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
-                                                  'balance': balance_all()},
+                                                  'text': 'Попробуйте венуться на прошлую страницу и попробовать снова'},
                           status=400)
     else:
         return redirect('index')
@@ -124,19 +121,17 @@ def success_payment(request):
             s = Order.objects.get(id=order_id)
         except Exception:
             return render(request, 'error.html', {'title': 'Ошибка 400',
-                                                  'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',
-                                                  'balance': balance_all()},
+                                                  'text': 'Попробуйте венуться на прошлую страницу и попробовать снова',},
                           status=400)
         if not s.paid:
             check_routine(s)
         if not s.been_success:
             s.been_success = True
             s.save()
-        return render(request, 'success.html', {'title': 'Спасибо за покупку!','balance': balance_all(),'order':s})
+        return render(request, 'success.html', {'title': 'Спасибо за покупку!','order':s})
     else:
         return render(request, 'error.html', {'title': 'Ошибка 404',
-                                              'text': 'Проверьте правильность адреса и повторите попытку',
-                                              'balance': balance_all()}, status=404)
+                                              'text': 'Проверьте правильность адреса и повторите попытку',}, status=404)
 
 
 def check_status(request):
@@ -147,14 +142,15 @@ def check_status(request):
     }
     if request.method == 'GET' and 'order' in request.GET:
         try:
-            order_id = int(request.GET['order'])
+            order_id = request.GET['order']
             o = Order.objects.get(id=order_id)
         except Exception:
-            return HttpResponseBadRequest(json.dumps(resp))
+            return JsonResponse(resp)
         if o.paid:
-            resp['status'] = 'Перевод выполен, robux отправленны'
+            resp['status'] = 'Перевод выполен'
             resp['color'] = 'green'
-            return HttpResponse(json.dumps(resp))
+            resp['guide'] = o.guide.paid
+            return JsonResponse(resp)
         else:
             # Jobs to check payments goes here
             check_routine(o)
@@ -162,9 +158,9 @@ def check_status(request):
             resp['status'] = 'Ожидание потверждения от {}. Пожалуйста, не уходите со страницы.'.format(o.get_payment_type_display())
             resp['color'] = 'orange'
             resp['final'] = False
-            return HttpResponse(json.dumps(resp))
+            return JsonResponse(resp)
     else:
-        return HttpResponseBadRequest(json.dumps(resp))
+        return JsonResponse(resp)
 
 
 # Try to update qiwi
@@ -178,19 +174,12 @@ def check_routine(o):
         response = json.loads(str(response.content, encoding='UTF-8'))
         # Pay funds
         if response['status']['value'] == 'PAID' and o.operation_id != 'Locked':
-            o.operation_id = 'Locked'
-            o.save()
+            #o.operation_id = 'Locked'
+            #o.save()
             if o.value_to_pay <= float(response['amount']['value']) and not o.paid:
                 # Log(message='Qiwi duplicate, order_id: {}'.format(o.id)).save()
                 # This is a duplicate (qiwi sends it)
-                result = send(o.name_id, o.sum_to_get, o.group_id)
-                if result:
-                    o.paid = True
-                    ba = Balance.objects.get(group_id=o.group_id)
-                    ba.value -= o.sum_to_get
-                    ba.save()
-                else:
-                    Log(message='Failed to send funds, order_id: {}'.format(o.id)).save()
+                o.paid = True
             else:
                 if not o.paid:
                     Log(message='Value mismatch got: {} need: {} {}'.format(o.value_to_pay,
@@ -226,22 +215,14 @@ def yandex_callback(request):
             if operation_id == 'test-notification':
                 Log(message='Yandex Money: Test ok').save()
                 return HttpResponse()
-            or_id = int(label[2:])
+            or_id = label
             s = Order.objects.get(id=or_id)
-            if s.operation_id == 'Locked':
-                return HttpResponse()
-            s.operation_id = 'Locked'
-            s.save()
+            #if s.operation_id == 'Locked':
+            #    return HttpResponse()
+            #s.operation_id = 'Locked'
+            #s.save()
             if s.value_to_pay <= float(amount) and not s.paid:
-                result = send(s.name_id, s.sum_to_get, s.group_id)
-                if result:
-                    s.paid = True
-                    ba = Balance.objects.get(group_id=s.group_id)
-                    ba.value -= s.sum_to_get
-                    ba.save()
-                else:
-                    # Failed to verify, save log
-                    Log(message='Failed to send funds, order_id: {}'.format(s.id)).save()
+                s.paid = True
             else:
                 if not s.paid:
                     Log(message='Value mismatch got: {} need: {} {}'.format(s.value_to_pay, float(amount), s.id)).save()
@@ -271,21 +252,14 @@ def qiwi_callback(request):
     if hmac.compare_digest(has, test_sum):
         try:
             s = Order.objects.get(id=string['billId'])
-            if s.operation_id == 'Locked':
-                return HttpResponse('{"error":"0"}', content_type='application/json')
-            s.operation_id = 'Locked'
-            s.save()
+            #if s.operation_id == 'Locked':
+            #    return HttpResponse('{"error":"0"}', content_type='application/json')
+            #s.operation_id = 'Locked'
+            #s.save()
             if s.value_to_pay <= float(string['amount']['value']) and not s.paid:
+                s.paid = True
                 #Log(message='Qiwi duplicate, order_id: {}'.format(s.id)).save()
                 # This is a duplicate (qiwi sends it)
-                result = send(s.name_id, s.sum_to_get, s.group_id)
-                if result:
-                    s.paid = True
-                    ba = Balance.objects.get(group_id=s.group_id)
-                    ba.value -= s.sum_to_get
-                    ba.save()
-                else:
-                    Log(message='Failed to send funds, order_id: {}'.format(s.id)).save()
             else:
                 Log(message='Value mismatch got: {} need: {} {}'.format(s.value_to_pay, string['amount']['value'], s.id)).save()
             s.operation_id = '{} {}'.format(string['billId'], string['siteId'])

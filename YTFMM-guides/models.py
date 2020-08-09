@@ -15,20 +15,20 @@ class Guide(models.Model):
     img=models.ImageField()
     abstract=models.TextField()
     text=models.TextField()
+    paid=models.TextField()
     price=models.PositiveIntegerField()
 
 
 class Order(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name_id = models.PositiveIntegerField()
-    value_to_pay = models.FloatField()
-    sum_to_get = models.IntegerField()
+    value_to_pay = models.PositiveIntegerField()
+    guide = models.ForeignKey(Guide, models.SET_NULL, blank=True, null=True)
     payment_type = models.CharField(max_length=2, choices=s.PAY_CHOICES)
     created = models.DateTimeField(auto_now_add=True)
     paid = models.BooleanField(default=False)
     been_success = models.BooleanField(default=False)
     operation_id = models.CharField(max_length=255)
-    group_id=models.IntegerField()
+    visited_times = models.PositiveIntegerField(default=0)
 
 
 class Log(models.Model):

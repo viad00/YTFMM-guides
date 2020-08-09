@@ -3,10 +3,10 @@
     <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
         <h1 class="display-4">{{ guide.name }}</h1>
         <br>
-    <a href="#" type="button" class="btn btn-lg btn-secondary">Купить {{ guide.price }} ₽</a>
+    <a href="/buy-guide?id={{ guide.id }}" type="button" class="btn btn-lg btn-secondary">Купить {{ guide.price }} ₽</a>
     </div>
     <div class="container text-left">
     {{ guide.text|safe }}
   </div>
-    <a href="#" type="button" class="btn btn-lg btn-secondary">Купить {{ guide.price }} ₽</a>
+    <a href="/buy-guide?id={{ guide.id }}" type="button" class="btn btn-lg btn-secondary">Купить {{ guide.price }} ₽</a>
 {% endblock %}

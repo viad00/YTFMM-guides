@@ -1,31 +1,23 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <header class="masthead bg-primary text-white text-center">
-        <div class="container">
-            <h1 class="text-uppercase mb-0">Выберете тип оплаты</h1>
-            <hr class="star-light">
-            <h2>{{ username }}</h2>
-            <img style="border: 5px solid grey; background: white" id="avatar" alt="User avatar" src="https://static.rbxcdn.com/images/spinners/spinner16x16.gif">
-            <br><br>
-            <h2>Покупка {{ value }} Robux</h2>
-            <br>
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+            <h1 class="text-uppercase mb-0">Выберите тип оплаты</h1>
+            <h2>{{ guide.name }}</h2>
             <form action="{% url 'place_order' %}" method="post">
                 {% csrf_token %}
-                <input type="hidden" name="{{ form.name_id.html_name }}" required hidden value="{{ userid }}">
-                <input type="hidden" name="{{ form.sum_to_get.html_name }}" required hidden value="{{ value }}">
-                <input type="hidden" name="{{ form.group_id.html_name }}" required hidden value="{{ group }}">
+                <input type="hidden" name="{{ form.guide_id.html_name }}" required hidden value="{{ guide.id }}">
                 <div class="container">
                     <div class="btn-group-toggle" data-toggle="buttons">
                         <div class="card-deck mb-3 text-center">
                             <div class="card mb-4 shadow-sm card-qiwi">
       <div style="height: 74px" class="card-header card-qiwi-header">
-          <img alt="Qiwi" src="https://corp.qiwi.com/dam/jcr:9c9065a3-885c-4d7f-ba7d-6900c39947b4/qiwi-name.png">
+          <img style="height: 50px" alt="Qiwi" src="https://static.qiwi.com/img/qiwi_com/header/qiwi-wallet-logo.svg">
       </div>
       <div class="card-body card-qiwi-body">
         <ul class="list-unstyled mt-3 mb-4">
           <li>Комиссии:</li>
           <li>0% при оплате с кошелька</li>
-          <li>1% при оплате с банковской карты</li>
+          <li>2% при оплате с банковской карты</li>
             <h6 style="color: orange">Внимание!</h6>
             <li>Не уходите со страницы после оплаты, иначе вы можете не получить ваши robux.</li>
         </ul>
@@ -52,37 +44,15 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-dark btn-xl" type="submit">Продолжить</button>
+                <button class="btn btn-secondary btn-xl" type="submit">Продолжить</button>
             </form>
             <br>
-        <!--
             <div style="font-size: 14px">
-                Информация по комиссиям:<br>
-                Яндекс Деньги: Комиссия 0.5% при оплате с кошелька и 2% при оплате с банковской карты.<br>
-                QIWI: Комиссия 0% при оплате с кошелька и 1% при оплате с банковской карты.<br>
+                После оплаты вы получите ссылку на гайд. Пожалуйста, не теряйте её.
+                Её можно открыть в истории браузера или истории YouTube если это приватное видео.
+                За утерю ссылки магазин ответственности не несет!
             </div>
-            -->
         </div>
-    </header>
 {% endblock %}
 {% block scripts %}
-    <script type="application/javascript">
-        function ready() {
-            $.ajax({
-                dataType: 'json',
-                url: "{% url 'get_avatar' %}",
-                data: {
-                    user_id: {{ userid }}
-                },
-                success: function(result){
-                    if (result.success) {
-                        $('#avatar').attr("src", result.url);
-                    } else {
-                        $('#avatar').hide();
-                    }
-                }
-            });
-        }
-        document.addEventListener("DOMContentLoaded", ready);
-    </script>
 {% endblock %}

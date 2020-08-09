@@ -1,34 +1,32 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <header class="masthead bg-primary text-white text-center">
-        <div class="container">
-            <h1 class="text-uppercase mb-0">Выберете как вы будете оплачивать</h1>
-            <hr class="star-light">
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+            <h1 class="text-uppercase mb-0">Выберите как вы будете оплачивать</h1>
+        <br>
             <form action="https://money.yandex.ru/quickpay/confirm.xml" method="post">
                 <input type="hidden" name="receiver" value="{{ pay_to }}">
                 <input type="hidden" name="formcomment" value="{{ pay_desc }}">
                 <input type="hidden" name="short-dest" value="{{ pay_desc }}">
-                <input type="hidden" name="label" value="RM{{ order_id }}">
+                <input type="hidden" name="label" value="{{ order_id }}">
                 <input type="hidden" name="quickpay-form" value="shop">
                 <input type="hidden" name="targets" value="{{ pay_desc }}">
-                <input type="hidden" name="successURL" value="https://robloxmafia.ru/success-payment?order={{ order_id }}">
+                <input type="hidden" name="successURL" value="https://guides.robloxmafia.ru/success-payment?order={{ order_id }}">
                 <input type="hidden" name="sum" value="{{ wallet }}" data-type="number">
                 <input type="hidden" name="paymentType" value="PC">
-                <button style="width: 200px" class="btn btn-outline-danger btn-xl">Из яндекс кошелька: {{ wallet }}руб.</button>
+                <button style="width: 200px; font-size: 22px; height: 150px;" class="btn btn-outline-danger btn-xl">Из яндекс кошелька: {{ wallet }}руб.</button>
             </form>
             <br>
             <form action="https://money.yandex.ru/quickpay/confirm.xml" method="post">
                 <input type="hidden" name="receiver" value="{{ pay_to }}">
                 <input type="hidden" name="formcomment" value="{{ pay_desc }}">
                 <input type="hidden" name="short-dest" value="{{ pay_desc }}">
-                <input type="hidden" name="label" value="RM{{ order_id }}">
+                <input type="hidden" name="label" value="{{ order_id }}">
                 <input type="hidden" name="quickpay-form" value="shop">
                 <input type="hidden" name="targets" value="{{ pay_desc }}">
-                <input type="hidden" name="successURL" value="https://robloxmafia.ru/success-payment?order={{ order_id }}">
+                <input type="hidden" name="successURL" value="https://guides.robloxmafia.ru/success-payment?order={{ order_id }}">
                 <input type="hidden" name="sum" value="{{ bank }}" data-type="number">
                 <input type="hidden" name="paymentType" value="AC">
-                <button style="width: 200px" class="btn btn-outline-info btn-xl">Банковской картой: {{ bank }}руб.</button>
+                <button style="width: 200px; font-size: 22px; height: 150px;" class="btn btn-outline-info btn-xl">Банковской картой: {{ bank }}руб.</button>
             </form>
         </div>
-    </header>
 {% endblock %}
